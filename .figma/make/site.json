@@ -1,0 +1,10 @@
+{
+  "description": "An AI-powered courier assistant app offering route optimization, chat-based support, and package management tools to enhance delivery driver efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

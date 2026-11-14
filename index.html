@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="<!-- figma:lang -->">
+  <head>
+    <!-- figma:head-start -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><!-- figma:title --></title>
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- figma:head-end -->
+    <script>
+      window.addEventListener('error', function(e) {
+        var errDiv = document.getElementById('debug-error-box');
+        if (errDiv) {
+          errDiv.style.display = 'block';
+          errDiv.innerHTML += '<div style="background:#fee2e2;border:1px solid #ef4444;color:#991b1b;padding:8px;border-radius:6px;margin:4px 0;font-size:12px;font-family:sans-serif;"><b>Startup Error:</b> ' + (e.message || e) + '<br/><small>' + (e.filename || '') + ':' + (e.lineno || '') + '</small></div>';
+        }
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        var errDiv = document.getElementById('debug-error-box');
+        if (errDiv) {
+          errDiv.style.display = 'block';
+          errDiv.innerHTML += '<div style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:8px;border-radius:6px;margin:4px 0;font-size:12px;font-family:sans-serif;"><b>Unhandled Promise:</b> ' + (e.reason && e.reason.message ? e.reason.message : e.reason) + '</div>';
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <!-- figma:body-start -->
+    <div id="debug-error-box" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999999;padding:12px;max-height:50vh;overflow:auto;"></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- figma:body-end -->
+  </body>
+</html>

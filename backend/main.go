@@ -12,6 +12,7 @@ import (
 	"net/smtp"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -62,12 +63,29 @@ type ComplaintDoc struct {
 }
 
 var (
-	mongoClient         *mongo.Client
+	mongoClient          *mongo.Client
 	usersCollection      *mongo.Collection
 	sessionsCollection   *mongo.Collection
 	messagesCollection   *mongo.Collection
 	complaintsCollection *mongo.Collection
-	redisClient         *redis.Client
+	redisClient          *redis.Client
+
+	// In-memory fallback stores when MongoDB / Redis are offline
+	memUsers    = make(map[string]UserDoc)
+	memSessions = []ChatSessionDoc{
+		{ID: "session_1", Title: "Rute Medan Kota", CreatedAt: time.Now().Add(-2 * time.Hour)},
+		{ID: "session_2", Title: "Draft untuk Bu Rina", CreatedAt: time.Now().Add(-4 * time.Hour)},
+		{ID: "session_3", Title: "Cek resi SPX-2781", CreatedAt: time.Now().Add(-24 * time.Hour)},
+		{ID: "session_4", Title: "Paket pecah belah", CreatedAt: time.Now().Add(-48 * time.Hour)},
+	}
+	memMessages = map[string][]ChatMessageDoc{
+		"session_1": {
+			{SessionID: "session_1", Sender: "user", Text: "Susun rute tercepat untuk 4 alamat ini. Dahulukan paket prioritas.", CreatedAt: time.Now().Add(-2 * time.Hour)},
+			{SessionID: "session_1", Sender: "ai", Text: "Rute tercepat sudah siap. Saya sudah menyusun 4 tujuan berdasarkan jarak, prioritas, dan waktu penerima.\n\n- Paket prioritas diantar lebih dulu.\n- Satu paket pecah belah perlu posisi tegak.\n- Hindari Jl. Sudirman hingga pukul 10.30.", CreatedAt: time.Now().Add(-2 * time.Hour + time.Minute)},
+		},
+	}
+	memOTPs = make(map[string]string)
+	memMu   sync.RWMutex
 )
 
 func hashPassword(password string) string {
@@ -77,11 +95,11 @@ func hashPassword(password string) string {
 }
 
 func generateOTP() string {
-	n, err := rand.Int(rand.Reader, big.NewInt(9000))
+	n, err := rand.Int(rand.Reader, big.NewInt(900000))
 	if err != nil {
-		return "1234"
+		return "123456"
 	}
-	return fmt.Sprintf("%04d", n.Int64()+1000)
+	return fmt.Sprintf("%06d", n.Int64()+100000)
 }
 
 func sendOTPEmail(toEmail, otpCode, subject string) error {
@@ -140,17 +158,19 @@ func initStorage() {
 		redisURI = "localhost:6379"
 	}
 
-	// Connect Mongo
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// Connect Mongo with 2s timeout so server starts immediately if offline
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	var err error
 	mongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
-		log.Printf("[MongoDB] Error connecting: %v\n", err)
+		log.Printf("[MongoDB] Error connecting: %v (Menggunakan in-memory storage)\n", err)
+		mongoClient = nil
 	} else {
 		if err := mongoClient.Ping(ctx, nil); err != nil {
-			log.Printf("[MongoDB] Ping failed: %v\n", err)
+			log.Printf("[MongoDB] Ping failed: %v (Menggunakan in-memory storage)\n", err)
+			mongoClient = nil
 		} else {
 			log.Println("[MongoDB] Connected successfully!")
 			db := mongoClient.Database("chatbot_db")
@@ -167,12 +187,16 @@ func initStorage() {
 		}
 	}
 
-	// Connect Redis
+	// Connect Redis with 2s timeout
 	redisClient = redis.NewClient(&redis.Options{
-		Addr: redisURI,
+		Addr:        redisURI,
+		DialTimeout: 2 * time.Second,
 	})
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
-		log.Printf("[Redis] Ping failed: %v\n", err)
+	redisCtx, redisCancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer redisCancel()
+	if err := redisClient.Ping(redisCtx).Err(); err != nil {
+		log.Printf("[Redis] Ping failed: %v (Menggunakan in-memory OTP storage)\n", err)
+		redisClient = nil
 	} else {
 		log.Println("[Redis] Connected successfully!")
 	}
@@ -250,26 +274,30 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// Generate 4-digit OTP, store in Redis & send real email
+		// Generate 6-digit OTP, store in Redis / Memory & send real email
 		otpCode := generateOTP()
 		if redisClient != nil {
 			redisClient.Set(ctx, "otp:register:"+email, otpCode, 5*time.Minute)
+		} else {
+			memMu.Lock()
+			memOTPs["otp:register:"+email] = otpCode
+			memMu.Unlock()
 		}
 
 		go sendOTPEmail(email, otpCode, "Kode OTP Verifikasi Pendaftaran - Asisten AI Kurir")
 
-		if usersCollection != nil {
-			userDoc := UserDoc{
-				Name:         name,
-				Email:        email,
-				PasswordHash: hashPassword(req.Password),
-				Role:         "Staf Kurir & Logistik",
-				IsVerified:   false,
-				AuthProvider: "local",
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
-			}
+		userDoc := UserDoc{
+			Name:         name,
+			Email:        email,
+			PasswordHash: hashPassword(req.Password),
+			Role:         "Staf Kurir & Logistik",
+			IsVerified:   false,
+			AuthProvider: "local",
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+		}
 
+		if usersCollection != nil {
 			opts := options.Update().SetUpsert(true)
 			_, _ = usersCollection.UpdateOne(ctx,
 				bson.M{"email": email},
@@ -288,6 +316,10 @@ func main() {
 				},
 				opts,
 			)
+		} else {
+			memMu.Lock()
+			memUsers[email] = userDoc
+			memMu.Unlock()
 		}
 
 		log.Printf("[Register] Email: %s | OTP Code: %s\n", email, otpCode)
@@ -320,6 +352,10 @@ func main() {
 		var validOTP string
 		if redisClient != nil {
 			validOTP, _ = redisClient.Get(ctx, "otp:register:"+email).Result()
+		} else {
+			memMu.RLock()
+			validOTP = memOTPs["otp:register:"+email]
+			memMu.RUnlock()
 		}
 
 		if validOTP != "" && validOTP != code {
@@ -331,10 +367,22 @@ func main() {
 				bson.M{"email": email},
 				bson.M{"$set": bson.M{"is_verified": true, "updated_at": time.Now()}},
 			)
+		} else {
+			memMu.Lock()
+			if u, ok := memUsers[email]; ok {
+				u.IsVerified = true
+				u.UpdatedAt = time.Now()
+				memUsers[email] = u
+			}
+			memMu.Unlock()
 		}
 
 		if redisClient != nil {
 			redisClient.Del(ctx, "otp:register:"+email)
+		} else {
+			memMu.Lock()
+			delete(memOTPs, "otp:register:"+email)
+			memMu.Unlock()
 		}
 
 		return c.JSON(fiber.Map{
@@ -383,12 +431,23 @@ func main() {
 				_, _ = usersCollection.InsertOne(ctx, user)
 			}
 		} else {
-			user = UserDoc{
-				Name:       strings.Split(email, "@")[0],
-				Email:      email,
-				Role:       "Staf Kurir & Logistik",
-				IsVerified: true,
+			memMu.Lock()
+			u, exists := memUsers[email]
+			if !exists {
+				u = UserDoc{
+					Name:         strings.Split(email, "@")[0],
+					Email:        email,
+					PasswordHash: hashPassword(req.Password),
+					Role:         "Staf Kurir & Logistik",
+					IsVerified:   true,
+					AuthProvider: "local",
+					CreatedAt:    time.Now(),
+					UpdatedAt:    time.Now(),
+				}
+				memUsers[email] = u
 			}
+			user = u
+			memMu.Unlock()
 		}
 
 		return c.JSON(fiber.Map{
@@ -405,8 +464,10 @@ func main() {
 	// Google Sign In (OAuth Provider Verified)
 	app.Post("/api/auth/google", func(c *fiber.Ctx) error {
 		type Req struct {
-			Email string `json:"email"`
-			Name  string `json:"name"`
+			Email    string `json:"email"`
+			Name     string `json:"name"`
+			Picture  string `json:"picture"`
+			GoogleID string `json:"google_id"`
 		}
 		var req Req
 		if err := c.BodyParser(&req); err != nil {
@@ -432,6 +493,8 @@ func main() {
 				bson.M{
 					"$set": bson.M{
 						"name":          name,
+						"picture":       req.Picture,
+						"google_id":     req.GoogleID,
 						"is_verified":   true,
 						"auth_provider": "google",
 						"updated_at":    time.Now(),
@@ -443,15 +506,29 @@ func main() {
 				},
 				opts,
 			)
+		} else {
+			memMu.Lock()
+			memUsers[email] = UserDoc{
+				Name:         name,
+				Email:        email,
+				Role:         "Staf Kurir & Logistik",
+				IsVerified:   true,
+				AuthProvider: "google",
+				CreatedAt:    time.Now(),
+				UpdatedAt:    time.Now(),
+			}
+			memMu.Unlock()
 		}
 
-		log.Printf("[Google Auth] Successful login for: %s (%s)\n", name, email)
+		log.Printf("[Google Auth] Successful synchronization for: %s (%s)\n", name, email)
 
 		return c.JSON(fiber.Map{
 			"status": "ok",
 			"user": fiber.Map{
 				"name":          name,
 				"email":         email,
+				"picture":       req.Picture,
+				"google_id":     req.GoogleID,
 				"role":          "Staf Kurir & Logistik",
 				"is_verified":   true,
 				"auth_provider": "google",
@@ -478,6 +555,10 @@ func main() {
 
 		if redisClient != nil {
 			redisClient.Set(ctx, "otp:reset:"+email, otpCode, 5*time.Minute)
+		} else {
+			memMu.Lock()
+			memOTPs["otp:reset:"+email] = otpCode
+			memMu.Unlock()
 		}
 
 		go sendOTPEmail(email, otpCode, "Kode OTP Reset Kata Sandi - Asisten AI Kurir")
@@ -512,6 +593,19 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
+		var validOTP string
+		if redisClient != nil {
+			validOTP, _ = redisClient.Get(ctx, "otp:reset:"+email).Result()
+		} else {
+			memMu.RLock()
+			validOTP = memOTPs["otp:reset:"+email]
+			memMu.RUnlock()
+		}
+
+		if validOTP != "" && req.Code != "" && validOTP != strings.TrimSpace(req.Code) {
+			return c.Status(400).JSON(fiber.Map{"error": "Kode OTP reset kata sandi tidak valid"})
+		}
+
 		if usersCollection != nil {
 			_, _ = usersCollection.UpdateOne(ctx,
 				bson.M{"email": email},
@@ -520,10 +614,22 @@ func main() {
 					"updated_at":    time.Now(),
 				}},
 			)
+		} else {
+			memMu.Lock()
+			if u, ok := memUsers[email]; ok {
+				u.PasswordHash = hashPassword(req.NewPassword)
+				u.UpdatedAt = time.Now()
+				memUsers[email] = u
+			}
+			memMu.Unlock()
 		}
 
 		if redisClient != nil {
 			redisClient.Del(ctx, "otp:reset:"+email)
+		} else {
+			memMu.Lock()
+			delete(memOTPs, "otp:reset:"+email)
+			memMu.Unlock()
 		}
 
 		return c.JSON(fiber.Map{
@@ -581,7 +687,11 @@ func main() {
 	// Get All Sessions
 	app.Get("/api/sessions", func(c *fiber.Ctx) error {
 		if sessionsCollection == nil {
-			return c.JSON([]fiber.Map{})
+			memMu.RLock()
+			defer memMu.RUnlock()
+			res := make([]ChatSessionDoc, len(memSessions))
+			copy(res, memSessions)
+			return c.JSON(res)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -599,8 +709,17 @@ func main() {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		if sessions == nil {
-			sessions = []ChatSessionDoc{}
+		if len(sessions) == 0 {
+			defaultSessions := []ChatSessionDoc{
+				{ID: "session_1", Title: "Rute Medan Kota", CreatedAt: time.Now().Add(-2 * time.Hour)},
+				{ID: "session_2", Title: "Draft untuk Bu Rina", CreatedAt: time.Now().Add(-4 * time.Hour)},
+				{ID: "session_3", Title: "Cek resi SPX-2781", CreatedAt: time.Now().Add(-24 * time.Hour)},
+				{ID: "session_4", Title: "Paket pecah belah", CreatedAt: time.Now().Add(-48 * time.Hour)},
+			}
+			for _, s := range defaultSessions {
+				_, _ = sessionsCollection.InsertOne(ctx, s)
+			}
+			sessions = defaultSessions
 		}
 
 		return c.JSON(sessions)
@@ -609,8 +728,18 @@ func main() {
 	// Get Messages for a Session
 	app.Get("/api/sessions/:id/messages", func(c *fiber.Ctx) error {
 		sessionID := c.Params("id")
-		if messagesCollection == nil || sessionID == "" {
+		if sessionID == "" {
 			return c.JSON([]fiber.Map{})
+		}
+
+		if messagesCollection == nil {
+			memMu.RLock()
+			defer memMu.RUnlock()
+			msgs, exists := memMessages[sessionID]
+			if !exists {
+				msgs = []ChatMessageDoc{}
+			}
+			return c.JSON(msgs)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -628,7 +757,16 @@ func main() {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		if messages == nil {
+		if len(messages) == 0 && sessionID == "session_1" {
+			initMsgs := []ChatMessageDoc{
+				{SessionID: "session_1", Sender: "user", Text: "Susun rute tercepat untuk 4 alamat ini. Dahulukan paket prioritas.", CreatedAt: time.Now().Add(-2 * time.Hour)},
+				{SessionID: "session_1", Sender: "ai", Text: "Rute tercepat sudah siap. Saya sudah menyusun 4 tujuan berdasarkan jarak, prioritas, dan waktu penerima.\n\n- Paket prioritas diantar lebih dulu.\n- Satu paket pecah belah perlu posisi tegak.\n- Hindari Jl. Sudirman hingga pukul 10.30.", CreatedAt: time.Now().Add(-2 * time.Hour + time.Minute)},
+			}
+			for _, m := range initMsgs {
+				_, _ = messagesCollection.InsertOne(ctx, m)
+			}
+			messages = initMsgs
+		} else if messages == nil {
 			messages = []ChatMessageDoc{}
 		}
 
@@ -652,6 +790,17 @@ func main() {
 			_, _ = messagesCollection.DeleteMany(ctx, bson.M{"session_id": sessionID})
 		}
 
+		memMu.Lock()
+		newSessions := []ChatSessionDoc{}
+		for _, s := range memSessions {
+			if s.ID != sessionID {
+				newSessions = append(newSessions, s)
+			}
+		}
+		memSessions = newSessions
+		delete(memMessages, sessionID)
+		memMu.Unlock()
+
 		return c.JSON(fiber.Map{"status": "deleted", "session_id": sessionID})
 	})
 
@@ -669,15 +818,15 @@ func main() {
 		log.Printf("[Stream Request] Session: %s | Model: %s | Prompt: %s\n",
 			sessionID, modelID, prompt)
 
+		title := prompt
+		if len(title) > 30 {
+			title = title[:30] + "..."
+		}
+
 		if sessionsCollection != nil && messagesCollection != nil {
 			go func(sID, p string) {
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
-
-				title := p
-				if len(title) > 30 {
-					title = title[:30] + "..."
-				}
 
 				opts := options.Update().SetUpsert(true)
 				_, _ = sessionsCollection.UpdateOne(ctx,
@@ -699,16 +848,37 @@ func main() {
 					CreatedAt: time.Now(),
 				})
 			}(sessionID, prompt)
+		} else {
+			memMu.Lock()
+			found := false
+			for _, s := range memSessions {
+				if s.ID == sessionID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				memSessions = append([]ChatSessionDoc{{
+					ID:        sessionID,
+					Title:     title,
+					CreatedAt: time.Now(),
+				}}, memSessions...)
+			}
+			memMessages[sessionID] = append(memMessages[sessionID], ChatMessageDoc{
+				SessionID: sessionID,
+				Sender:    "user",
+				Text:      prompt,
+				CreatedAt: time.Now(),
+			})
+			memMu.Unlock()
 		}
 
 		c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 			replyTokens := []string{
-				"Halo! ", "Terima ", "kasih ", "sudah ", "bertanya: ",
-				"\"" + prompt + "\".\n\n",
-				"Saya ", "menjawab ", "menggunakan ", "mode model: **" + modelID + "** ",
-				"berbasis ", "Golang (Fiber) ", "& ", "Flutter.\n\n",
-				"```golang\n// Evaluasi Prompt & Konteks\nfmt.Println(\"Processing prompt with custom weights...\")\n```\n\n",
-				"Model ", "AI ", "kamu ", "siap ", "menghubungkan ", "hasil ", "inference ", "secara ", "real-time! 🚀",
+				"Halo! ", "PARDALANI ", "Kopilot ", "Rute ", "AI ", "siap ", "membantu ", "pengantaranmu.\n\n",
+				"Pertanyaan: ", "\"" + prompt + "\"\n\n",
+				"Mode: **" + modelID + "** ", "(Go Fiber Backend & SSE Streaming).\n\n",
+				"Rute ", "dan ", "instruksi ", "paket ", "telah ", "diperbarui ", "secara ", "real-time! 🚀",
 			}
 
 			fullResponse := ""
@@ -716,7 +886,7 @@ func main() {
 				fullResponse += token
 				fmt.Fprintf(w, "data: %s\n\n", token)
 				_ = w.Flush()
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(80 * time.Millisecond)
 			}
 
 			if messagesCollection != nil {
@@ -729,6 +899,15 @@ func main() {
 					Text:      fullResponse,
 					CreatedAt: time.Now(),
 				})
+			} else {
+				memMu.Lock()
+				memMessages[sessionID] = append(memMessages[sessionID], ChatMessageDoc{
+					SessionID: sessionID,
+					Sender:    "ai",
+					Text:      fullResponse,
+					CreatedAt: time.Now(),
+				})
+				memMu.Unlock()
 			}
 
 			if redisClient != nil {

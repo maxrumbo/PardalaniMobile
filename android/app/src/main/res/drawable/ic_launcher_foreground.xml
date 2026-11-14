@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.35"
+        android:scaleY="1.35"
+        android:translateX="21.6"
+        android:translateY="21.6">
+        <!-- Rounded badge card -->
+        <path
+            android:fillColor="#25254F"
+            android:pathData="M14,0 L34,0 C41.7,0 48,6.3 48,14 L48,34 C48,41.7 41.7,48 34,48 L14,48 C6.3,48 0,41.7 0,34 L0,14 C0,6.3 6.3,0 14,0 Z" />
+        <!-- Letter P body in Lime Accent -->
+        <path
+            android:fillColor="#C9F43B"
+            android:pathData="M14,36 L14,12 L25.4,12 C32.4,12 37,15.7 37,21.7 C37,27.4 32.8,30.9 26.5,30.9 L21,30.9 L21,36 Z" />
+        <!-- Letter P inner counter in Navy -->
+        <path
+            android:fillColor="#25254F"
+            android:pathData="M21,18 L25.2,18 C28.1,18 29.9,19.3 29.9,21.8 C29.9,24.2 28.1,25.5 25.2,25.5 L21,25.5 Z" />
+        <!-- Wing / Speed Accent in Lime Accent -->
+        <path
+            android:strokeColor="#C9F43B"
+            android:strokeWidth="2.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M27,13.5 L35,9 L33.4,17.9" />
+    </group>
+</vector>
+

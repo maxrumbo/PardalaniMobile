@@ -1,8 +1,28 @@
-# IDE & OS
+# Dependencies & Build
+node_modules/
+dist/
+build/
+.cache/
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+*-debug.log*
+logs/
+*.log
+.claude-replay.*
+.tmp-*
+
+# IDE & Editor & OS
 .idea/
+.vscode/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Platform-managed agent state
+/.figma/design-context/
+/.plugins/
+/.opencode-skills/
 
 # Flutter / Dart
 **/build/
@@ -10,6 +30,12 @@ Thumbs.db
 **/.flutter-plugins-dependencies
 **/.pub-cache/
 **/.pub/
+
+# Android & Capacitor
+android/.gradle/
+android/app/build/
+android/local.properties
+*.apk
 
 # Go & Environment
 backend/.env
@@ -20,6 +46,3 @@ backend/.env
 *.dylib
 *.test
 *.out
-
-# Node / Database / Docker
-*.log
