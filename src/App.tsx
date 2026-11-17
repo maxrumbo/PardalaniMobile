@@ -1028,6 +1028,7 @@ function App() {
     return true
   })
   const [welcomeSlide, setWelcomeSlide] = useState(0)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [showGooglePicker, setShowGooglePicker] = useState(false)
   const [customGoogleEmail, setCustomGoogleEmail] = useState("")
   const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false)
@@ -3552,47 +3553,47 @@ function App() {
             }}
           >
             <div className="welcome-modal">
-              <div className="welcome-modal-header">
-                <button
-                  type="button"
-                  className="welcome-close-btn"
-                  onClick={() => setShowWelcome(false)}
-                  aria-label="Tutup panduan"
-                >
-                  <Icon name="close" size={14} />
-                </button>
-              </div>
+              {/* Floating Glass Close Button */}
+              <button
+                type="button"
+                className="welcome-close-btn"
+                onClick={() => setShowWelcome(false)}
+                aria-label="Tutup panduan"
+              >
+                <Icon name="close" size={14} />
+              </button>
 
-              <h2 className="welcome-modal-title">
-                {language === "id"
-                  ? "Asisten Pengantaran Kurir"
-                  : "Courier Delivery Assistant"}
-              </h2>
-              <p className="welcome-modal-desc">
-                {language === "id"
-                  ? "Fitur andalan tugas pengantaran:"
-                  : "Core delivery superpowers:"}
-              </p>
-
+              {/* Edge-to-Edge Full Photo Carousel (No Nested Inner Card) */}
               <div className="wfc-carousel">
                 <div
                   className="wfc-track"
                   style={{ transform: `translateX(-${welcomeSlide * 100}%)` }}
+                  onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+                  onTouchEnd={(e) => {
+                    if (touchStartX === null) return
+                    const diff = e.changedTouches[0].clientX - touchStartX
+                    if (diff > 40 && welcomeSlide > 0) setWelcomeSlide(welcomeSlide - 1)
+                    if (diff < -40 && welcomeSlide < 2) setWelcomeSlide(welcomeSlide + 1)
+                    setTouchStartX(null)
+                  }}
                 >
                   {/* Slide 1 – Urutan Rute Tercepat */}
                   <div className="wfc-slide">
-                    <div className="wfc-card">
+                    <div className="wfc-hero-img-wrap">
+                      <img
+                        src="https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=700&q=80&fit=crop&crop=center"
+                        alt={language === "id" ? "Peta rute navigasi pengantaran" : "Delivery GPS route map"}
+                        className="wfc-full-img"
+                      />
+                      <div className="wfc-img-gradient" />
+                    </div>
+                    <div className="wfc-slide-body">
+                      <div className="wfc-badge-tag">
+                        {language === "id" ? "Asisten Kurir Pardalani" : "Pardalani Courier"}
+                      </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Urutan Rute Tercepat" : "Optimal Route Sequence"}
                       </h3>
-                      <div className="wfc-img-frame">
-                        <img
-                          src="https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=600&q=80&fit=crop&crop=center"
-                          alt={language === "id" ? "Peta rute navigasi pengantaran" : "Delivery GPS route map"}
-                          className="wfc-img"
-                        />
-                        <div className="wfc-img-overlay" />
-                      </div>
                       <p className="wfc-caption">
                         {language === "id"
                           ? "Alamat diurutkan otomatis — bensin hemat, waktu efisien."
@@ -3603,18 +3604,21 @@ function App() {
 
                   {/* Slide 2 – Pindai Resi */}
                   <div className="wfc-slide">
-                    <div className="wfc-card">
+                    <div className="wfc-hero-img-wrap">
+                      <img
+                        src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=700&q=80&fit=crop&crop=center"
+                        alt={language === "id" ? "Pindai barcode paket" : "Package barcode scan"}
+                        className="wfc-full-img"
+                      />
+                      <div className="wfc-img-gradient" />
+                    </div>
+                    <div className="wfc-slide-body">
+                      <div className="wfc-badge-tag">
+                        {language === "id" ? "Asisten Kurir Pardalani" : "Pardalani Courier"}
+                      </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Pindai Resi Otomatis" : "Instant Label Scan"}
                       </h3>
-                      <div className="wfc-img-frame">
-                        <img
-                          src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80&fit=crop&crop=center"
-                          alt={language === "id" ? "Pindai barcode paket" : "Package barcode scan"}
-                          className="wfc-img"
-                        />
-                        <div className="wfc-img-overlay" />
-                      </div>
                       <p className="wfc-caption">
                         {language === "id"
                           ? "Jepret barcode — nama & alamat terbaca seketika."
@@ -3625,18 +3629,21 @@ function App() {
 
                   {/* Slide 3 – Dikte Suara */}
                   <div className="wfc-slide">
-                    <div className="wfc-card">
+                    <div className="wfc-hero-img-wrap">
+                      <img
+                        src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&q=80&fit=crop&crop=center"
+                        alt={language === "id" ? "Kurir berkendara di jalan hands-free" : "Courier riding on road hands-free"}
+                        className="wfc-full-img"
+                      />
+                      <div className="wfc-img-gradient" />
+                    </div>
+                    <div className="wfc-slide-body">
+                      <div className="wfc-badge-tag">
+                        {language === "id" ? "Asisten Kurir Pardalani" : "Pardalani Courier"}
+                      </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Dikte Suara Hands-free" : "Voice Input Hands-free"}
                       </h3>
-                      <div className="wfc-img-frame">
-                        <img
-                          src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=80&fit=crop&crop=center"
-                          alt={language === "id" ? "Kurir berkendara di jalan hands-free" : "Courier riding on road hands-free"}
-                          className="wfc-img"
-                        />
-                        <div className="wfc-img-overlay" />
-                      </div>
                       <p className="wfc-caption">
                         {language === "id"
                           ? "Rekam pesan & terima instruksi tanpa menyentuh layar."
@@ -3645,8 +3652,10 @@ function App() {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Slide dots */}
+              {/* Controls & Action Button */}
+              <div className="wfc-footer-controls">
                 <div className="wfc-dots">
                   {[0, 1, 2].map((i) => (
                     <button
@@ -3658,27 +3667,27 @@ function App() {
                     />
                   ))}
                 </div>
-              </div>
 
-              <button
-                type="button"
-                className="welcome-primary-btn"
-                onClick={() => {
-                  setShowWelcome(false)
-                  notify(
-                    language === "id"
-                      ? "Selamat bertugas! Rute Anda sudah siap."
-                      : "Ready to go! Your delivery route is active.",
-                  )
-                }}
-              >
-                <span>
-                  {language === "id"
-                    ? "Mulai Bertugas Sekarang"
-                    : "Start Daily Run"}
-                </span>
-                <Icon name="chevron" size={14} style={{ transform: "rotate(-90deg)" }} />
-              </button>
+                <button
+                  type="button"
+                  className="welcome-primary-btn"
+                  onClick={() => {
+                    setShowWelcome(false)
+                    notify(
+                      language === "id"
+                        ? "Selamat bertugas! Rute Anda sudah siap."
+                        : "Ready to go! Your delivery route is active.",
+                    )
+                  }}
+                >
+                  <span>
+                    {language === "id"
+                      ? "Mulai Bertugas Sekarang"
+                      : "Start Daily Run"}
+                  </span>
+                  <Icon name="chevron" size={14} style={{ transform: "rotate(-90deg)" }} />
+                </button>
+              </div>
             </div>
           </div>
         )}
