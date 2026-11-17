@@ -5076,8 +5076,7 @@ function App() {
                   setOverlay("handling_detail")
                 }}
               >
-                <span>{language === "id" ? "Buka Halaman Khusus SOP Lengkap" : "Open Dedicated Full SOP Page"}</span>
-                <Icon name="external" size={14} />
+                <span>{language === "id" ? "Buka SOP Lengkap" : "Open Full SOP"}</span>
               </button>
             </div>
           </section>
