@@ -488,7 +488,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .search-field { height: 44px; border: 1px solid var(--glass-border); background: var(--glass); backdrop-filter: blur(14px); border-radius: 14px; display: flex; align-items: center; gap: 9px; padding: 0 11px; color: var(--muted); }
 .search-field input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 11px; }
 .search-field button { width: 28px; height: 28px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
-.history-title { display: flex; align-items: center; justify-content: space-between; margin: 18px 2px 10px; }
+.history-title { display: flex; align-items: center; justify-content: space-between; margin: 12px 2px 6px; }
 .history-title h3 { margin: 0; font-size: 12px; }
 .history-title span { min-width: 22px; height: 22px; border-radius: 8px; background: var(--surface-2); display: grid; place-items: center; font-size: 9px; color: var(--muted); }
 .history-group h4 { margin: 15px 3px 6px; color: var(--subtle); font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
@@ -508,9 +508,50 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .rename-form { display: flex; width: 100%; gap: 5px; padding: 5px 0; }
 .rename-form input { min-width: 0; flex: 1; background: var(--surface); color: var(--ink); border: 1px solid var(--primary); border-radius: 10px; padding: 0 9px; font-size: 10px; }
 .rename-form .icon-button { width: 38px; height: 38px; }
-.empty-state { text-align: center; padding: 38px 10px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 9px; }
-.empty-state strong { font-size: 11px; color: var(--ink); }
-.empty-state button { border: 0; background: transparent; color: var(--success); text-decoration: underline; font-size: 9px; cursor: pointer; }
+.empty-state {
+  text-align: center;
+  padding: 18px 12px;
+  margin: 4px 0 8px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-2) 65%, transparent);
+  border: 1px dashed var(--border);
+}
+.empty-state-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--subtle);
+  display: grid;
+  place-items: center;
+  margin-bottom: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.empty-state strong {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.empty-state-hint {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+.empty-state button {
+  border: 0;
+  background: transparent;
+  color: var(--success);
+  text-decoration: underline;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+}
 .drawer-links { padding: 9px 12px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 3px; }
 .drawer-links button { min-height: 44px; border: 0; background: transparent; border-radius: 12px; display: grid; grid-template-columns: 25px 1fr 18px; align-items: center; text-align: left; gap: 9px; padding: 0 10px; font-size: 9px; font-weight: 700; cursor: pointer; }
 .drawer-links button:hover { background: var(--surface-2); }

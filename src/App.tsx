@@ -3835,11 +3835,27 @@ function App() {
               <div className="history-list">
                 {filteredHistory.length === 0 ? (
                   <div className="empty-state">
-                    <Icon name="search" />
-                    <strong>{t.emptySearch}</strong>
-                    <button type="button" onClick={() => setSearch("")}>
-                      {t.resetSearch}
-                    </button>
+                    <span className="empty-state-icon">
+                      <Icon name="search" size={17} />
+                    </span>
+                    <strong>
+                      {search
+                        ? t.emptySearch
+                        : language === "id"
+                          ? "Belum ada riwayat percakapan"
+                          : "No conversation history yet"}
+                    </strong>
+                    {search ? (
+                      <button type="button" onClick={() => setSearch("")}>
+                        {t.resetSearch}
+                      </button>
+                    ) : (
+                      <span className="empty-state-hint">
+                        {language === "id"
+                          ? "Percakapan baru akan tersimpan di sini"
+                          : "New chats will be saved here"}
+                      </span>
+                    )}
                   </div>
                 ) : (
                   ["today", "yesterday", "earlier"].map((group) => {
