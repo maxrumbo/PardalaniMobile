@@ -5041,6 +5041,7 @@ function App() {
                   type="button"
                   key={item.id}
                   className="handling-faq-item"
+                  style={{ "--item-color": item.tagColor } as React.CSSProperties}
                   onClick={() => {
                     triggerHaptic(20)
                     setSelectedHandlingTopic(item.id)
@@ -5048,8 +5049,8 @@ function App() {
                   }}
                 >
                   <div className="faq-item-left">
-                    <span className="faq-item-icon" style={{ color: item.tagColor, background: `color-mix(in srgb, ${item.tagColor} 14%, var(--surface))` }}>
-                      <Icon name={item.icon as IconName} size={16} />
+                    <span className="faq-item-icon">
+                      <Icon name={item.icon as IconName} size={18} />
                     </span>
                     <div className="faq-item-text">
                       <div className="faq-item-title-row">
@@ -5059,7 +5060,7 @@ function App() {
                     </div>
                   </div>
                   <span className="faq-item-arrow">
-                    <Icon name="chevron" size={14} style={{ transform: "rotate(-90deg)" }} />
+                    <Icon name="chevron" size={15} />
                   </span>
                 </button>
               ))}
