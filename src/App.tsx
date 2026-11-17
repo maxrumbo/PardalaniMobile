@@ -811,6 +811,7 @@ function App() {
       return true
     }
   })
+  const [welcomeSlide, setWelcomeSlide] = useState(0)
   const [showGooglePicker, setShowGooglePicker] = useState(false)
   const [customGoogleEmail, setCustomGoogleEmail] = useState("")
   const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false)
@@ -1238,6 +1239,12 @@ function App() {
       delete (window as any).onAndroidBackToast
     }
   }, [showGooglePicker, showWelcome, overlay, language])
+
+  useEffect(() => {
+    if (!showWelcome) return
+    const id = setInterval(() => setWelcomeSlide(p => (p + 1) % 3), 4000)
+    return () => clearInterval(id)
+  }, [showWelcome])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -3265,104 +3272,125 @@ function App() {
                   : "Core delivery superpowers:"}
               </p>
 
-              <div className="wfc-list">
-                {/* Card 1 – Rute Tercepat */}
-                <div className="wfc-card wfc-card--route">
-                  <div className="wfc-top">
-                    <h3 className="wfc-title">
-                      {language === "id" ? "Urutan Rute\nTercepat" : "Optimal Route\nSequence"}
-                    </h3>
-                    <span className="wfc-corner-btn">
-                      <Icon name="external" size={11} />
-                    </span>
-                  </div>
-                  <div className="wfc-visual wfc-visual--route">
-                    <div className="wfc-map-pin hub">
-                      <Icon name="pin" size={14} />
-                      <span>Depo</span>
+              <div className="wfc-carousel">
+                <div
+                  className="wfc-track"
+                  style={{ transform: `translateX(-${welcomeSlide * 100}%)` }}
+                >
+                  {/* Slide 1 – Urutan Rute Tercepat */}
+                  <div className="wfc-slide">
+                    <div className="wfc-card">
+                      <div className="wfc-top-row">
+                        <span className="wfc-corner-icon wfc-corner-icon--route">
+                          <Icon name="route" size={13} />
+                        </span>
+                        <span className="wfc-corner-link">
+                          <Icon name="external" size={11} />
+                        </span>
+                      </div>
+                      <h3 className="wfc-heading">
+                        {language === "id" ? "Urutan Rute\nTercepat" : "Optimal Route\nSequence"}
+                      </h3>
+                      <div className="wfc-img-frame">
+                        <img
+                          src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80&fit=crop&crop=center"
+                          alt={language === "id" ? "Peta rute pengantaran" : "Delivery route map"}
+                          className="wfc-img"
+                        />
+                        <div className="wfc-img-overlay" />
+                        <span className="wfc-img-badge">
+                          <span className="wfc-img-dot" style={{ background: "#c9f43b", boxShadow: "0 0 5px #c9f43b" }} />
+                          {language === "id" ? "⚡ Hemat s/d 25 mnt" : "⚡ Save 25 mins"}
+                        </span>
+                      </div>
+                      <p className="wfc-caption">
+                        {language === "id"
+                          ? "Alamat diurutkan otomatis — bensin hemat, waktu efisien."
+                          : "Auto-sorted stops save fuel and cut delivery time."}
+                      </p>
                     </div>
-                    <svg className="wfc-road" viewBox="0 0 120 36" fill="none">
-                      <path d="M4 18 Q30 4 60 18 Q90 32 116 18" stroke="#c9f43b" strokeWidth="2.5" strokeDasharray="5 3" strokeLinecap="round"/>
-                      <circle cx="60" cy="18" r="4" fill="#c9f43b"/>
-                      <circle cx="116" cy="18" r="4" fill="#ffffff" stroke="#c9f43b" strokeWidth="1.5"/>
-                    </svg>
-                    <div className="wfc-map-pin dest">
-                      <Icon name="pin" size={14} />
-                      <span>{language === "id" ? "Tujuan" : "Dest"}</span>
+                  </div>
+
+                  {/* Slide 2 – Pindai Resi */}
+                  <div className="wfc-slide">
+                    <div className="wfc-card">
+                      <div className="wfc-top-row">
+                        <span className="wfc-corner-icon wfc-corner-icon--scan">
+                          <Icon name="scan" size={13} />
+                        </span>
+                        <span className="wfc-corner-link">
+                          <Icon name="external" size={11} />
+                        </span>
+                      </div>
+                      <h3 className="wfc-heading">
+                        {language === "id" ? "Pindai Resi\nOtomatis" : "Instant Label\nScan"}
+                      </h3>
+                      <div className="wfc-img-frame">
+                        <img
+                          src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80&fit=crop&crop=center"
+                          alt={language === "id" ? "Pindai barcode paket" : "Package barcode scan"}
+                          className="wfc-img"
+                        />
+                        <div className="wfc-img-overlay" />
+                        <span className="wfc-img-badge">
+                          <span className="wfc-img-dot" style={{ background: "#38bdf8", boxShadow: "0 0 5px #38bdf8" }} />
+                          {language === "id" ? "✓ Tanpa ketik manual" : "✓ Zero typing"}
+                        </span>
+                      </div>
+                      <p className="wfc-caption">
+                        {language === "id"
+                          ? "Jepret barcode — nama & alamat terbaca seketika."
+                          : "Snap a barcode — name & address read instantly."}
+                      </p>
                     </div>
                   </div>
-                  <div className="wfc-badge">
-                    <span className="wfc-badge-dot wfc-badge-dot--lime" />
-                    {language === "id" ? "⚡ Hemat s/d 25 menit" : "⚡ Save up to 25 mins"}
+
+                  {/* Slide 3 – Dikte Suara */}
+                  <div className="wfc-slide">
+                    <div className="wfc-card">
+                      <div className="wfc-top-row">
+                        <span className="wfc-corner-icon wfc-corner-icon--voice">
+                          <Icon name="mic" size={13} />
+                        </span>
+                        <span className="wfc-corner-link">
+                          <Icon name="external" size={11} />
+                        </span>
+                      </div>
+                      <h3 className="wfc-heading">
+                        {language === "id" ? "Dikte Suara\nHands-free" : "Voice Input\nHands-free"}
+                      </h3>
+                      <div className="wfc-img-frame">
+                        <img
+                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop&crop=center"
+                          alt={language === "id" ? "Kurir berkendara hands-free" : "Courier riding hands-free"}
+                          className="wfc-img"
+                        />
+                        <div className="wfc-img-overlay" />
+                        <span className="wfc-img-badge">
+                          <span className="wfc-img-dot" style={{ background: "#4ade80", boxShadow: "0 0 5px #4ade80" }} />
+                          {language === "id" ? "🛡️ Aman berkendara" : "🛡️ Safe driving"}
+                        </span>
+                      </div>
+                      <p className="wfc-caption">
+                        {language === "id"
+                          ? "Rekam pesan & terima instruksi tanpa menyentuh layar."
+                          : "Dictate notes & get spoken instructions while riding."}
+                      </p>
+                    </div>
                   </div>
-                  <p className="wfc-desc">
-                    {language === "id"
-                      ? "Alamat diurutkan otomatis, bensin hemat, waktu efisien."
-                      : "Auto-sorted stops save fuel and cut delivery time."}
-                  </p>
                 </div>
 
-                {/* Card 2 – Pindai Resi */}
-                <div className="wfc-card wfc-card--scan">
-                  <div className="wfc-top">
-                    <h3 className="wfc-title">
-                      {language === "id" ? "Pindai Resi\nOtomatis" : "Instant Label\nScan"}
-                    </h3>
-                    <span className="wfc-corner-btn">
-                      <Icon name="external" size={11} />
-                    </span>
-                  </div>
-                  <div className="wfc-visual wfc-visual--scan">
-                    <div className="wfc-barcode">
-                      {[2,1,3,1,2,3,1,2,1,3,2,1].map((w, i) => (
-                        <span key={i} className={`wfc-bar wfc-bar--${w}`} />
-                      ))}
-                    </div>
-                    <div className="wfc-scan-line" />
-                    <div className="wfc-scan-result">
-                      <code>PRD-8821</code>
-                    </div>
-                  </div>
-                  <div className="wfc-badge">
-                    <span className="wfc-badge-dot wfc-badge-dot--blue" />
-                    {language === "id" ? "✓ Tanpa ketik manual" : "✓ Zero manual typing"}
-                  </div>
-                  <p className="wfc-desc">
-                    {language === "id"
-                      ? "Jepret barcode — nama & alamat terbaca seketika."
-                      : "Snap a barcode — name & address read instantly."}
-                  </p>
-                </div>
-
-                {/* Card 3 – Suara Hands-free */}
-                <div className="wfc-card wfc-card--voice">
-                  <div className="wfc-top">
-                    <h3 className="wfc-title">
-                      {language === "id" ? "Dikte Suara\nHands-free" : "Voice Input\nHands-free"}
-                    </h3>
-                    <span className="wfc-corner-btn">
-                      <Icon name="external" size={11} />
-                    </span>
-                  </div>
-                  <div className="wfc-visual wfc-visual--voice">
-                    <div className="wfc-mic-ring">
-                      <Icon name="mic" size={22} />
-                    </div>
-                    <div className="wfc-wave-row">
-                      {[4,8,13,10,15,12,9,6,11,8,5].map((h, i) => (
-                        <span key={i} className="wfc-wave-bar" style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }} />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="wfc-badge">
-                    <span className="wfc-badge-dot wfc-badge-dot--green" />
-                    {language === "id" ? "🛡️ Aman saat berkendara" : "🛡️ Safe while driving"}
-                  </div>
-                  <p className="wfc-desc">
-                    {language === "id"
-                      ? "Rekam pesan & terima instruksi tanpa menyentuh layar."
-                      : "Dictate notes & get spoken instructions while riding."}
-                  </p>
+                {/* Slide dots */}
+                <div className="wfc-dots">
+                  {[0, 1, 2].map(i => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`wfc-dot-btn${welcomeSlide === i ? " active" : ""}`}
+                      aria-label={`Slide ${i + 1}`}
+                      onClick={() => setWelcomeSlide(i)}
+                    />
+                  ))}
                 </div>
               </div>
 
