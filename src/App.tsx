@@ -811,7 +811,6 @@ function App() {
       return true
     }
   })
-  const [welcomeSlide, setWelcomeSlide] = useState(0)
   const [showGooglePicker, setShowGooglePicker] = useState(false)
   const [customGoogleEmail, setCustomGoogleEmail] = useState("")
   const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false)
@@ -1239,14 +1238,6 @@ function App() {
       delete (window as any).onAndroidBackToast
     }
   }, [showGooglePicker, showWelcome, overlay, language])
-
-  useEffect(() => {
-    if (!showWelcome) return
-    const interval = setInterval(() => {
-      setWelcomeSlide((prev) => (prev + 1) % 3)
-    }, 3800)
-    return () => clearInterval(interval)
-  }, [showWelcome])
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -3270,98 +3261,107 @@ function App() {
               </h2>
               <p className="welcome-modal-desc">
                 {language === "id"
-                  ? "Fitur andalan untuk mempermudah tugas pengantaran Anda:"
-                  : "Core tools to make your delivery runs faster and safer:"}
+                  ? "Fitur andalan tugas pengantaran:"
+                  : "Core delivery superpowers:"}
               </p>
 
-              {/* Autosliding Feature Card */}
-              <div className="welcome-slide-card" key={welcomeSlide}>
-                <div className="welcome-slide-icon-wrap">
-                  <Icon
-                    name={
-                      welcomeSlide === 0
-                        ? "route"
-                        : welcomeSlide === 1
-                          ? "camera"
-                          : "mic"
-                    }
-                    size={22}
-                  />
-                </div>
-                <span className="welcome-slide-tag">
-                  {welcomeSlide === 0
-                    ? (language === "id" ? "Rute Teratur" : "Route Order")
-                    : welcomeSlide === 1
-                      ? (language === "id" ? "Pindai Resi" : "Scan Label")
-                      : (language === "id" ? "Panduan Suara" : "Voice Guide")}
-                </span>
-                <h3 className="welcome-slide-title">
-                  {welcomeSlide === 0
-                    ? (language === "id" ? "Urutan Rute Tercepat" : "Optimal Route Sequence")
-                    : welcomeSlide === 1
-                      ? (language === "id" ? "Foto & Pindai Resi Paket" : "Photo & Scan Receipt")
-                      : (language === "id" ? "Dikte & Suara Nyaring" : "Spoken Instructions")}
-                </h3>
-                <p className="welcome-slide-desc">
-                  {welcomeSlide === 0
-                    ? (language === "id"
-                        ? "Susunan alamat diurutkan otomatis agar tidak bolak-balik dan menghemat bensin di jalan."
-                        : "Addresses are sequenced automatically to prevent backtracking and save fuel.")
-                    : welcomeSlide === 1
-                      ? (language === "id"
-                          ? "Jepret barcode resi atau pilih foto dari galeri untuk membaca nama dan alamat secara otomatis."
-                          : "Snap a photo or pick from gallery to read recipient name and address instantly.")
-                      : (language === "id"
-                          ? "Dengarkan instruksi paket dan rekam pesan cukup dengan suara saat mengemudi tanpa menatap layar."
-                          : "Listen to parcel tips and dictate notes hands-free while driving safely.")}
-                </p>
-                <div className="welcome-slide-highlight">
-                  <span>
-                    {welcomeSlide === 0
-                      ? (language === "id" ? "Hemat waktu s/d 25 menit" : "Saves up to 25 mins")
-                      : welcomeSlide === 1
-                        ? (language === "id" ? "Tanpa repot ketik manual" : "Zero manual typing")
-                        : (language === "id" ? "Aman saat berkendara" : "Safe on the road")}
-                  </span>
-                </div>
-              </div>
-
-              {/* Slide Navigation Dots & Arrows */}
-              <div className="welcome-slider-nav">
-                <button
-                  type="button"
-                  className="welcome-nav-arrow"
-                  aria-label="Fitur sebelumnya"
-                  onClick={() =>
-                    setWelcomeSlide((prev) => (prev - 1 + 3) % 3)
-                  }
-                >
-                  <Icon name="chevron" size={13} style={{ transform: "rotate(90deg)" }} />
-                </button>
-
-                <div className="welcome-nav-dots" role="tablist">
-                  {[0, 1, 2].map((dotIdx) => (
-                    <button
-                      key={dotIdx}
-                      type="button"
-                      role="tab"
-                      aria-label={`Fitur ${dotIdx + 1}`}
-                      className={`welcome-nav-dot ${welcomeSlide === dotIdx ? "active" : ""}`}
-                      onClick={() => setWelcomeSlide(dotIdx)}
-                    />
-                  ))}
+              <div className="welcome-feature-list">
+                {/* 1. Urutan Rute Tercepat */}
+                <div className="welcome-feature-card">
+                  <div className="welcome-feature-header">
+                    <div className="welcome-feature-title-wrap">
+                      <span className="welcome-feature-icon route">
+                        <Icon name="route" size={16} />
+                      </span>
+                      <strong>
+                        {language === "id" ? "Urutan Rute Tercepat" : "Optimal Route Order"}
+                      </strong>
+                    </div>
+                    <span className="welcome-feature-badge success">
+                      {language === "id" ? "⚡ Hemat 25 Mnt" : "⚡ Save 25 Mins"}
+                    </span>
+                  </div>
+                  <div className="welcome-feature-visual route-visual">
+                    <div className="route-node hub">
+                      <span className="node-dot" />
+                      <span className="node-label">Depo</span>
+                    </div>
+                    <div className="route-line" />
+                    <div className="route-node stop">
+                      <span className="node-dot" />
+                      <span className="node-label">Paket 1</span>
+                    </div>
+                    <div className="route-line" />
+                    <div className="route-node stop">
+                      <span className="node-dot" />
+                      <span className="node-label">Paket 2</span>
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="welcome-nav-arrow"
-                  aria-label="Fitur selanjutnya"
-                  onClick={() =>
-                    setWelcomeSlide((prev) => (prev + 1) % 3)
-                  }
-                >
-                  <Icon name="chevron" size={13} style={{ transform: "rotate(-90deg)" }} />
-                </button>
+                {/* 2. Pindai Resi Paket */}
+                <div className="welcome-feature-card">
+                  <div className="welcome-feature-header">
+                    <div className="welcome-feature-title-wrap">
+                      <span className="welcome-feature-icon scan">
+                        <Icon name="scan" size={16} />
+                      </span>
+                      <strong>
+                        {language === "id" ? "Pindai Resi Otomatis" : "Instant Label Scan"}
+                      </strong>
+                    </div>
+                    <span className="welcome-feature-badge info">
+                      {language === "id" ? "✓ Auto-Detect" : "✓ Auto-Detect"}
+                    </span>
+                  </div>
+                  <div className="welcome-feature-visual scan-visual">
+                    <div className="barcode-bars">
+                      <span className="b-bar b-1" />
+                      <span className="b-bar b-2" />
+                      <span className="b-bar b-1" />
+                      <span className="b-bar b-3" />
+                      <span className="b-bar b-2" />
+                      <span className="b-bar b-1" />
+                      <span className="b-bar b-3" />
+                      <span className="b-bar b-2" />
+                    </div>
+                    <div className="scan-code-pill">
+                      <code>PRD-8821</code>
+                      <span className="scan-tag">Nama & Alamat OK</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Dikte & Panduan Suara */}
+                <div className="welcome-feature-card">
+                  <div className="welcome-feature-header">
+                    <div className="welcome-feature-title-wrap">
+                      <span className="welcome-feature-icon mic">
+                        <Icon name="mic" size={16} />
+                      </span>
+                      <strong>
+                        {language === "id" ? "Dikte Suara Kurir" : "Voice Assistant"}
+                      </strong>
+                    </div>
+                    <span className="welcome-feature-badge warning">
+                      {language === "id" ? "🛡️ Hands-free" : "🛡️ Hands-free"}
+                    </span>
+                  </div>
+                  <div className="welcome-feature-visual voice-visual">
+                    <div className="waveform-bars">
+                      <span className="w-bar h-1" />
+                      <span className="w-bar h-3" />
+                      <span className="w-bar h-5" />
+                      <span className="w-bar h-2" />
+                      <span className="w-bar h-6" />
+                      <span className="w-bar h-4" />
+                      <span className="w-bar h-2" />
+                    </div>
+                    <div className="voice-prompt-pill">
+                      <span>&ldquo;{language === "id" ? "Selesai antar paket" : "Parcel delivered"}&rdquo;</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <button
