@@ -183,49 +183,7 @@ const copy = {
   },
 }
 
-const initialHistory: HistorySession[] = [
-  {
-    id: "session_1",
-    title: "Rute Medan Kota",
-    titleEn: "Central Medan Route",
-    preview: "4 tujuan · 6 paket · 58 menit",
-    previewEn: "4 stops · 6 packages · 58 minutes",
-    time: "09.12",
-    timeEn: "09:12",
-    group: "today",
-    pinned: true,
-  },
-  {
-    id: "session_2",
-    title: "Draft untuk Bu Rina",
-    titleEn: "Draft for Mrs. Rina",
-    preview: "Paket tiba sekitar pukul 11.30",
-    previewEn: "Package arriving around 11:30",
-    time: "08.45",
-    timeEn: "08:45",
-    group: "today",
-  },
-  {
-    id: "session_3",
-    title: "Cek resi SPX-2781",
-    titleEn: "Check label SPX-2781",
-    preview: "Label berhasil dibaca",
-    previewEn: "Label scanned successfully",
-    time: "16.20",
-    timeEn: "16:20",
-    group: "yesterday",
-  },
-  {
-    id: "session_4",
-    title: "Paket pecah belah",
-    titleEn: "Fragile package",
-    preview: "Simpan tegak, hindari guncangan",
-    previewEn: "Keep upright and avoid impacts",
-    time: "Sen",
-    timeEn: "Mon",
-    group: "earlier",
-  },
-]
+const initialHistory: HistorySession[] = []
 
 const routeSteps: RouteStep[] = [
   { no: 1, address: "Jl. Sei Batang Hari 12", eta: "09.28", status: "2 paket", statusEn: "2 packages" },
@@ -779,26 +737,33 @@ function App() {
   const [overlay, setOverlay] = useState<Overlay>("none")
   const [settingsSection, setSettingsSection] =
     useState<"profile" | "prefs" | "ai" | "help">("profile")
-  const [history, setHistory] = useState(initialHistory)
+  const [history, setHistory] = useState<HistorySession[]>(() => {
+    try {
+      const saved = localStorage.getItem("pardalani_sessions")
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) {
+          return parsed.filter(
+            (s: any) =>
+              !["session_1", "session_2", "session_3", "session_4"].includes(
+                String(s.id),
+              ),
+          )
+        }
+      }
+    } catch {}
+    return initialHistory
+  })
   const [search, setSearch] = useState("")
   const [activeMenu, setActiveMenu] = useState<string | number | null>(null)
   const [renaming, setRenaming] = useState<string | number | null>(null)
   const [renameValue, setRenameValue] = useState("")
   const [deleting, setDeleting] = useState<string | number | null>(null)
   const [composer, setComposer] = useState("")
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-    try {
-      const saved = localStorage.getItem("pardalani_chat_history")
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed
-        }
-      }
-    } catch {}
-    return []
-  })
-  const [activeSessionId, setActiveSessionId] = useState<string>("session_1")
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [activeSessionId, setActiveSessionId] = useState<string>(
+    () => `session_${Date.now()}`,
+  )
   const [isTyping, setIsTyping] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [toast, setToast] = useState("")
@@ -1178,11 +1143,24 @@ function App() {
 
   useEffect(() => {
     try {
-      if (chatMessages.length > 0) {
-        localStorage.setItem("pardalani_chat_history", JSON.stringify(chatMessages))
+      localStorage.setItem("pardalani_sessions", JSON.stringify(history))
+    } catch {}
+  }, [history])
+
+  useEffect(() => {
+    try {
+      if (activeSessionId) {
+        if (chatMessages.length > 0) {
+          localStorage.setItem(
+            `pardalani_chat_${activeSessionId}`,
+            JSON.stringify(chatMessages),
+          )
+        } else {
+          localStorage.removeItem(`pardalani_chat_${activeSessionId}`)
+        }
       }
     } catch {}
-  }, [chatMessages])
+  }, [chatMessages, activeSessionId])
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -1875,7 +1853,8 @@ function App() {
   }
 
   const selectSession = async (item: HistorySession) => {
-    setActiveSessionId(String(item.id))
+    const sessId = String(item.id)
+    setActiveSessionId(sessId)
     setOverlay("none")
 
     try {
@@ -1899,27 +1878,34 @@ function App() {
         }
       }
     } catch {
-      // Fallback
+      // Backend unavailable, fallback to local storage
     }
 
-    if (String(item.id) === "session_1" || item.id === 1) {
-      setChatMessages([])
-    } else {
-      setChatMessages([
-        {
-          id: `m_1_${item.id}`,
-          sender: "user",
-          text: item.title,
-          time: item.time,
-        },
-        {
-          id: `m_2_${item.id}`,
-          sender: "ai",
-          text: item.preview,
-          time: item.time,
-        },
-      ])
-    }
+    try {
+      const localSaved = localStorage.getItem(`pardalani_chat_${sessId}`)
+      if (localSaved) {
+        const parsed = JSON.parse(localSaved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setChatMessages(parsed)
+          return
+        }
+      }
+    } catch {}
+
+    setChatMessages([
+      {
+        id: `m_1_${item.id}`,
+        sender: "user",
+        text: item.title,
+        time: item.time,
+      },
+      {
+        id: `m_2_${item.id}`,
+        sender: "ai",
+        text: item.preview,
+        time: item.time,
+      },
+    ])
   }
 
   const getCourierAiResponse = (
@@ -2280,24 +2266,22 @@ function App() {
     setComposer("")
     setIsTyping(true)
 
-    if (activeSessionId !== "session_1") {
-      setHistory((prev) => {
-        const exists = prev.some((s) => String(s.id) === String(activeSessionId))
-        if (exists) return prev
-        const titleText = trimmed.length > 25 ? trimmed.slice(0, 25) + "..." : trimmed
-        const newSessionItem: HistorySession = {
-          id: activeSessionId,
-          title: titleText,
-          titleEn: titleText,
-          preview: trimmed,
-          previewEn: trimmed,
-          time: timeStr,
-          timeEn: timeStr,
-          group: "today",
-        }
-        return [newSessionItem, ...prev]
-      })
-    }
+    setHistory((prev) => {
+      const exists = prev.some((s) => String(s.id) === String(activeSessionId))
+      if (exists) return prev
+      const titleText = trimmed.length > 25 ? trimmed.slice(0, 25) + "..." : trimmed
+      const newSessionItem: HistorySession = {
+        id: activeSessionId,
+        title: titleText,
+        titleEn: titleText,
+        preview: trimmed,
+        previewEn: trimmed,
+        time: timeStr,
+        timeEn: timeStr,
+        group: "today",
+      }
+      return [newSessionItem, ...prev]
+    })
 
     try {
       const streamUrl = `${backendUrl}/api/chat/stream?prompt=${encodeURIComponent(
@@ -2611,12 +2595,20 @@ function App() {
   }
 
   const shareConversation = async (session?: HistorySession) => {
-    const title = session ? session.title : "Pardalani · Rute siap dijalankan"
+    const title = session
+      ? session.title
+      : chatMessages.find((m) => m.sender === "user")?.text.slice(0, 30) ||
+        "Pardalani · Percakapan Kurir"
     const text = session
       ? `${session.title}\n${session.preview}`
-      : `Rute siap dijalankan\n4 perhentian telah dioptimalkan untuk efisiensi waktu dan konsumsi bahan bakar.\n\n${routeSteps
-          .map((step) => `${step.no}. ${step.address} · ${step.eta} · ${step.status}`)
-          .join("\n")}`
+      : chatMessages.length > 0
+        ? chatMessages
+            .map(
+              (m) =>
+                `${m.sender === "user" ? "Kurir" : "Pardalani"}: ${m.text}`,
+            )
+            .join("\n\n")
+        : "Pardalani - Asisten Kurir AI"
     if (typeof window !== "undefined" && (window as any).AndroidShare?.share) {
       ;(window as any).AndroidShare.share(title, text)
       notify(
@@ -2804,6 +2796,12 @@ function App() {
     if (deleting === null) return
     const idToDelete = deleting
     setHistory((items) => items.filter((item) => item.id !== idToDelete))
+    try {
+      localStorage.removeItem(`pardalani_chat_${idToDelete}`)
+    } catch {}
+    if (String(activeSessionId) === String(idToDelete)) {
+      startNewChat()
+    }
     setDeleting(null)
 
     try {
@@ -2935,153 +2933,10 @@ function App() {
           </section>
 
           <section className="thread" aria-label="Chat">
-            {activeSessionId === "session_1" ? (
-              <>
-                <div className="date-rule">
-                  <span>{t.today}, 09.14</span>
-                </div>
-                <div className="user-message">
-                  Susun rute tercepat untuk 4 alamat ini. Dahulukan paket prioritas.
-                </div>
-
-                <article
-                  className={`assistant-card ${regenerating ? "loading" : ""}`}
-                >
-                  <div className="assistant-head">
-                    <BrandMark size={30} />
-                    <div>
-                      <strong>Pardalani</strong>
-                      <span>Kopilot Rute AI</span>
-                    </div>
-                  </div>
-                  {regenerating ? (
-                    <div
-                      className="skeleton-stack"
-                      aria-label="Regenerating response"
-                    >
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  ) : (
-                    <>
-                      <h2>Rute siap dijalankan</h2>
-                      <p>4 perhentian telah dioptimalkan untuk efisiensi waktu dan konsumsi bahan bakar.</p>
-                      <ul className="insight-list">
-                        <li>
-                          <Icon name="check" size={17} />
-                          Paket prioritas diantar lebih dulu.
-                        </li>
-                        <li>
-                          <Icon name="package" size={17} />
-                          Satu paket pecah belah perlu posisi tegak.
-                        </li>
-                        <li>
-                          <Icon name="warning" size={17} />
-                          Hindari Jl. Sudirman hingga pukul 10.30 karena pasar tumpah.
-                        </li>
-                      </ul>
-                      <div
-                        className="route-table"
-                        role="table"
-                        aria-label="Route steps"
-                      >
-                        <div className="route-header" role="row">
-                          <span>Urutan</span>
-                          <span>Tujuan</span>
-                          <span>ETA</span>
-                        </div>
-                        {routeSteps.map((step) => (
-                          <div className="route-row" role="row" key={step.no}>
-                            <span className="route-number">{step.no}</span>
-                            <span className="route-address">
-                              <strong>{step.address}</strong>
-                              <small>{step.status}</small>
-                            </span>
-                            <time>{step.eta}</time>
-                          </div>
-                        ))}
-                      </div>
-                      <div
-                        className="next-stop-card"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                          window.open(
-                            "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
-                            "_blank",
-                          )
-                        }}
-                      >
-                        <span className="next-icon">
-                          <Icon name="route" />
-                        </span>
-                        <div>
-                          <small>Tujuan berikutnya</small>
-                          <strong>Jl. Sei Batang Hari 12</strong>
-                          <span>1,8 km · 8 mnt</span>
-                        </div>
-                        <Icon name="chevron" />
-                      </div>
-                      <button
-                        type="button"
-                        className="primary-button"
-                        onClick={() => {
-                          triggerHaptic(25)
-                          notify(
-                            language === "id"
-                              ? "Membuka rute navigasi di Google Maps..."
-                              : "Opening route navigation in Google Maps...",
-                          )
-                          if (
-                            typeof window !== "undefined" &&
-                            (window as any).AndroidAction?.openMaps
-                          ) {
-                            ;(window as any).AndroidAction.openMaps(
-                              "Jl. Sei Batang Hari 12, Medan",
-                            )
-                          } else {
-                            window.open(
-                              "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
-                              "_blank",
-                            )
-                          }
-                        }}
-                      >
-                        <Icon name="route" />
-                        {t.startNav}
-                      </button>
-                      <div className="message-actions">
-                        <button
-                          type="button"
-                          className={speakingText === defaultRouteSpeech ? "speaking" : ""}
-                          onClick={listenToResponse}
-                        >
-                          <Icon name="speaker" size={17} />
-                          {speakingText === defaultRouteSpeech
-                            ? language === "id"
-                              ? "Berhenti"
-                              : "Stop"
-                            : t.listen}
-                        </button>
-                        <button type="button" onClick={copyResponse}>
-                          <Icon name="copy" size={17} />
-                          {t.copy}
-                        </button>
-                        <button type="button" onClick={regenerate}>
-                          <Icon name="refresh" size={17} />
-                          {t.regenerate}
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </article>
-              </>
-            ) : (
-              chatMessages.length > 0 && (
-                <div className="date-rule">
-                  <span>{t.today}</span>
-                </div>
-              )
+            {chatMessages.length > 0 && (
+              <div className="date-rule">
+                <span>{t.today}</span>
+              </div>
             )}
 
             {chatMessages.map((msg) =>
