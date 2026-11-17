@@ -637,7 +637,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .otp-form .auth-link { margin-top: 14px; font-size: 9px; }
 .media-sheet-actions { position: absolute; top: 7px; right: 12px; z-index: 1; }
 .media-sheet-actions .icon-button { width: 32px; height: 32px; border: 0; background: transparent; }
-.media-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 280px; margin: 13px auto 0; }
+.media-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 320px; margin: 13px auto 0; }
 .media-options button { min-width: 0; min-height: 72px; padding: 4px 2px; border: 0; border-radius: 18px; background: transparent; color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s cubic-bezier(.2,.8,.2,1), background .18s ease; }
 .media-options button:hover { background: color-mix(in srgb, var(--surface-2) 36%, transparent); transform: translateY(-2px); }
 .media-options button:active { transform: translateY(1px) scale(.94); }

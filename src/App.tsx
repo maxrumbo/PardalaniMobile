@@ -4666,8 +4666,13 @@ function App() {
             <div className="media-options">
               {[
                 [
+                  "image",
+                  language === "id" ? "Album" : "Album",
+                  () => galleryInputRef.current?.click(),
+                ],
+                [
                   "file",
-                  language === "id" ? "File & Drive" : "Files & Drive",
+                  language === "id" ? "File" : "File",
                   () => documentInputRef.current?.click(),
                 ],
                 [
