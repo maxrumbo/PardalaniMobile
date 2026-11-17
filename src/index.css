@@ -1070,8 +1070,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .welcome-modal-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  justify-content: flex-end;
+  margin-bottom: 6px;
 }
 .welcome-app-pill {
   display: inline-flex;

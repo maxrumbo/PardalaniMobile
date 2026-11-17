@@ -3241,11 +3241,6 @@ function App() {
           >
             <div className="welcome-modal">
               <div className="welcome-modal-header">
-                <div className="welcome-app-pill">
-                  <span className="welcome-status-dot" />
-                  <strong>Pardalani</strong>
-                  <span>{language === "id" ? "Panduan Kurir" : "Courier Guide"}</span>
-                </div>
                 <button
                   type="button"
                   className="welcome-close-btn"
@@ -3298,10 +3293,6 @@ function App() {
                           className="wfc-img"
                         />
                         <div className="wfc-img-overlay" />
-                        <span className="wfc-img-badge">
-                          <span className="wfc-img-dot" style={{ background: "#c9f43b", boxShadow: "0 0 5px #c9f43b" }} />
-                          {language === "id" ? "⚡ Hemat s/d 25 mnt" : "⚡ Save 25 mins"}
-                        </span>
                       </div>
                       <p className="wfc-caption">
                         {language === "id"
@@ -3332,10 +3323,6 @@ function App() {
                           className="wfc-img"
                         />
                         <div className="wfc-img-overlay" />
-                        <span className="wfc-img-badge">
-                          <span className="wfc-img-dot" style={{ background: "#38bdf8", boxShadow: "0 0 5px #38bdf8" }} />
-                          {language === "id" ? "✓ Tanpa ketik manual" : "✓ Zero typing"}
-                        </span>
                       </div>
                       <p className="wfc-caption">
                         {language === "id"
@@ -3366,10 +3353,6 @@ function App() {
                           className="wfc-img"
                         />
                         <div className="wfc-img-overlay" />
-                        <span className="wfc-img-badge">
-                          <span className="wfc-img-dot" style={{ background: "#4ade80", boxShadow: "0 0 5px #4ade80" }} />
-                          {language === "id" ? "🛡️ Aman berkendara" : "🛡️ Safe driving"}
-                        </span>
                       </div>
                       <p className="wfc-caption">
                         {language === "id"
