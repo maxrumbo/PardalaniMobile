@@ -17,9 +17,10 @@ Aplikasi asisten kurir AI berbasis mobile (*plek-ketiplek* dengan desain Figma) 
 ## 2. Cara Menjalankan Proyek
 
 ### Langkah 1: Jalankan Database (Docker)
-Buka terminal di root proyek, lalu jalankan:
+Masuk ke folder backend lalu jalankan:
 ```bash
-docker-compose up -d
+cd backend
+docker compose up -d
 ```
 
 ### Langkah 2: Jalankan Server Backend (Go Fiber)
