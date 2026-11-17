@@ -5012,7 +5012,6 @@ function App() {
                   id: "fragile",
                   title: language === "id" ? "Paket Pecah Belah (Fragile)" : "Fragile Items",
                   desc: language === "id" ? "Posisi paling atas, jangan tertimpa, tanda panah tegak." : "Top position, never crushed, keep arrows upward.",
-                  tag: language === "id" ? "SOP Prioritas" : "Priority SOP",
                   tagColor: "#f59e0b",
                   icon: "package",
                 },
@@ -5020,7 +5019,6 @@ function App() {
                   id: "perishable",
                   title: language === "id" ? "Makanan & Frozen Food" : "Perishable & Food",
                   desc: language === "id" ? "Maksimal antar 2 jam, dahulukan di urutan terdepan." : "Max 2 hours delivery, prioritize in early stops.",
-                  tag: language === "id" ? "Batas Waktu" : "Urgent Time",
                   tagColor: "#0284c7",
                   icon: "clock",
                 },
@@ -5028,7 +5026,6 @@ function App() {
                   id: "absent",
                   title: language === "id" ? "Penerima Tidak di Rumah" : "Recipient Unavailable",
                   desc: language === "id" ? "Telepon 2x, opsi titip satpam atau atur antar ulang." : "Call twice, drop with security or reschedule.",
-                  tag: language === "id" ? "SOP Titip/Retur" : "Drop / Return",
                   tagColor: "#10b981",
                   icon: "user",
                 },
@@ -5036,7 +5033,6 @@ function App() {
                   id: "damaged",
                   title: language === "id" ? "Paket Rusak atau Basah" : "Damaged Packaging",
                   desc: language === "id" ? "Wajib foto 4 sisi resi & konfirmasi sebelum serah." : "Photo 4 sides of label & confirm before handover.",
-                  tag: language === "id" ? "Klaim Garansi" : "Claims",
                   tagColor: "#ef4444",
                   icon: "warning",
                 },
@@ -5058,9 +5054,6 @@ function App() {
                     <div className="faq-item-text">
                       <div className="faq-item-title-row">
                         <strong>{item.title}</strong>
-                        <span className="faq-item-badge" style={{ color: item.tagColor, background: `color-mix(in srgb, ${item.tagColor} 12%, transparent)` }}>
-                          {item.tag}
-                        </span>
                       </div>
                       <p>{item.desc}</p>
                     </div>
