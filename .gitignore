@@ -36,7 +36,8 @@ android/.gradle/
 android/app/build/
 android/local.properties
 *.apk
-!Pardalani-*.apk
+!apk/
+!apk/*.apk
 
 # Go & Environment
 backend/.env
