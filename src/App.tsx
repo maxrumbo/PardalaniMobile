@@ -3279,9 +3279,27 @@ function App() {
                         <span className="wfc-corner-icon wfc-corner-icon--route">
                           <Icon name="route" size={13} />
                         </span>
-                        <span className="wfc-corner-link">
-                          <Icon name="external" size={11} />
-                        </span>
+                        <button
+                          type="button"
+                          className="wfc-corner-link"
+                          aria-label={language === "id" ? "Buka optimasi rute" : "Open route optimization"}
+                          title={language === "id" ? "Buka optimasi rute" : "Open route optimization"}
+                          onClick={() => {
+                            setShowWelcome(false)
+                            try {
+                              localStorage.setItem("pardalani_welcomed", "true")
+                            } catch {}
+                            triggerHaptic(20)
+                            quickAction("route")
+                            notify(
+                              language === "id"
+                                ? "Memulai optimasi rute tercepat..."
+                                : "Optimizing fastest route...",
+                            )
+                          }}
+                        >
+                          <Icon name="external" size={13} />
+                        </button>
                       </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Urutan Rute\nTercepat" : "Optimal Route\nSequence"}
@@ -3309,9 +3327,31 @@ function App() {
                         <span className="wfc-corner-icon wfc-corner-icon--scan">
                           <Icon name="scan" size={13} />
                         </span>
-                        <span className="wfc-corner-link">
-                          <Icon name="external" size={11} />
-                        </span>
+                        <button
+                          type="button"
+                          className="wfc-corner-link"
+                          aria-label={language === "id" ? "Buka pemindai resi" : "Open label scanner"}
+                          title={language === "id" ? "Buka pemindai resi" : "Open label scanner"}
+                          onClick={() => {
+                            setShowWelcome(false)
+                            try {
+                              localStorage.setItem("pardalani_welcomed", "true")
+                            } catch {}
+                            triggerHaptic(20)
+                            if (cameraInputRef.current) {
+                              cameraInputRef.current.click()
+                            } else {
+                              quickAction("scan")
+                            }
+                            notify(
+                              language === "id"
+                                ? "Membuka kamera pemindai resi..."
+                                : "Opening label scanner...",
+                            )
+                          }}
+                        >
+                          <Icon name="external" size={13} />
+                        </button>
                       </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Pindai Resi\nOtomatis" : "Instant Label\nScan"}
@@ -3339,9 +3379,27 @@ function App() {
                         <span className="wfc-corner-icon wfc-corner-icon--voice">
                           <Icon name="mic" size={13} />
                         </span>
-                        <span className="wfc-corner-link">
-                          <Icon name="external" size={11} />
-                        </span>
+                        <button
+                          type="button"
+                          className="wfc-corner-link"
+                          aria-label={language === "id" ? "Mulai dikte suara" : "Start voice dictation"}
+                          title={language === "id" ? "Mulai dikte suara" : "Start voice dictation"}
+                          onClick={() => {
+                            setShowWelcome(false)
+                            try {
+                              localStorage.setItem("pardalani_welcomed", "true")
+                            } catch {}
+                            triggerHaptic(20)
+                            startVoiceInput()
+                            notify(
+                              language === "id"
+                                ? "Mikrofon aktif. Silakan bicara..."
+                                : "Microphone active. Speak now...",
+                            )
+                          }}
+                        >
+                          <Icon name="external" size={13} />
+                        </button>
                       </div>
                       <h3 className="wfc-heading">
                         {language === "id" ? "Dikte Suara\nHands-free" : "Voice Input\nHands-free"}

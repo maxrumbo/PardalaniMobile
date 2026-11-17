@@ -1188,13 +1188,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .wfc-corner-icon--voice { background: rgba(74,222,128,0.16); color: #4ade80; }
 
 .wfc-corner-link {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.1);
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   display: grid;
   place-items: center;
-  color: rgba(255,255,255,0.5);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.wfc-corner-link:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #c9f43b;
+  transform: scale(1.1) translateY(-1px);
+}
+
+.wfc-corner-link:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 /* ── Large bold title ── */
