@@ -2343,39 +2343,50 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 
 .handling-detail-hero {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 18px;
   padding: 12px 14px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .handling-hero-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 24%, var(--surface-2));
   color: var(--ink);
   display: grid;
   place-items: center;
-  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.handling-hero-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .handling-detail-hero h2 {
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 800;
   color: var(--ink);
   margin: 0;
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .handling-detail-hero p {
   font-size: 11px;
   color: var(--muted);
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 /* 2x2 Grid Topic Selector: Robust, Never Cut-Off */

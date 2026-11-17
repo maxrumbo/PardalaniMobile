@@ -5121,16 +5121,18 @@ function App() {
             <div className="handling-detail-body">
               <div className="handling-detail-hero">
                 <span className="handling-hero-icon">
-                  <Icon name="package" size={24} />
+                  <Icon name="package" size={20} />
                 </span>
-                <h2 id="handling-detail-title">
-                  {language === "id" ? "Buku Panduan & SOP Penanganan Paket" : "Parcel Handling & SOP Handbook"}
-                </h2>
-                <p>
-                  {language === "id"
-                    ? "Standar operasional prosedur resmi Pardalani untuk menjaga keamanan paket kurir di lapangan."
-                    : "Official Pardalani operational guidelines for secure delivery runs."}
-                </p>
+                <div className="handling-hero-text">
+                  <h2 id="handling-detail-title">
+                    {language === "id" ? "Buku Panduan & SOP Penanganan Paket" : "Parcel Handling & SOP Handbook"}
+                  </h2>
+                  <p>
+                    {language === "id"
+                      ? "Standar operasional prosedur resmi Pardalani untuk menjaga keamanan paket kurir di lapangan."
+                      : "Official Pardalani operational guidelines for secure delivery runs."}
+                  </p>
+                </div>
               </div>
 
               {/* Topic Selector Grid (2x2 Grid, Visible & Non-clipping) */}
