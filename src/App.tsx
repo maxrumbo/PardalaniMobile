@@ -4544,58 +4544,68 @@ function App() {
                           ? `${usedTokens.toLocaleString(tokenLocale)} poin telah terpakai untuk bantuan rute & pengantaran hari ini.`
                           : `${usedTokens.toLocaleString(tokenLocale)} points used for route & delivery assistance today.`}
                     </p>
+                  </div>
 
-                    {/* Upgrade / Manage Subscription Banner */}
-                    <div className="token-upgrade-banner">
-                      <div className="upgrade-banner-info">
-                        <strong>
+                  {/* Standalone Premium Card (Not Nested) */}
+                  <div className="premium-showcase-card">
+                    <div className="showcase-card-header">
+                      <div className="showcase-badge">
+                        <Icon name={isUnlimited ? "crown" : "zap"} size={13} />
+                        <span>
                           {isUnlimited
-                            ? language === "id"
-                              ? `Langganan Aktif: ${TIER_DETAILS[userTier].name}`
-                              : `Active Plan: ${TIER_DETAILS[userTier].name}`
-                            : language === "id"
-                              ? "Butuh Rute & Kuota Lebih Banyak?"
-                              : "Need More Delivery Stops?"}
-                        </strong>
-                        <small>
-                          {isUnlimited
-                            ? language === "id"
-                              ? "Nikmati rute banyak tanpa batasan kuota pesan & server prioritas"
-                              : "Enjoy unlimited routes, zero chat quotas, and priority dispatch"
-                            : language === "id"
-                              ? "Upgrade ke Plus / Pro untuk rute 35-50+ titik & AI tanpa batas"
-                              : "Upgrade to Plus / Pro for 35-50+ stops and unlimited AI"}
-                        </small>
+                            ? `PARDALANI ${userTier.toUpperCase()}`
+                            : "PARDALANI PLUS & PRO"}
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        className="upgrade-btn-cta"
-                        onClick={() => {
-                          setSelectedPlan(userTier === "basic" ? "plus" : userTier)
-                          setShowPremiumModal(true)
-                        }}
-                      >
-                        {isUnlimited ? (
-                          <>
-                            <Icon name="crown" size={15} />
-                            <span>
-                              {language === "id"
-                                ? "Kelola Langganan"
-                                : "Manage Subscription"}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="upgrade-bolt">⚡</span>
-                            <span>
-                              {language === "id"
-                                ? "Upgrade ke Pro / Plus"
-                                : "Upgrade to Pro / Plus"}
-                            </span>
-                          </>
-                        )}
-                      </button>
+                      <span className="showcase-promo-pill">
+                        {isUnlimited
+                          ? language === "id"
+                            ? "Status Aktif"
+                            : "Active"
+                          : "Mulai Rp 15rb"}
+                      </span>
                     </div>
+
+                    <div className="showcase-card-content">
+                      <h4 className="showcase-title">
+                        {isUnlimited
+                          ? language === "id"
+                            ? "Kapasitas Unlimited Sedang Aktif"
+                            : "Unlimited Capacity Active"
+                          : language === "id"
+                            ? "Buka Rute & AI Tanpa Batas"
+                            : "Unlock Unlimited Routes & AI"}
+                      </h4>
+                      <p className="showcase-desc">
+                        {isUnlimited
+                          ? language === "id"
+                            ? "Semua fitur rute multi-stop, draf WhatsApp kilat & jalur server VIP aktif tanpa batas."
+                            : "All multi-stop routes, rapid WhatsApp drafts & VIP server access active."
+                          : language === "id"
+                            ? "Rute optimal hingga 35–50+ titik alamat, draf WhatsApp otomatis 1-klik, dan dikte suara."
+                            : "Optimize up to 35–50+ stops, 1-click WhatsApp drafts, and voice dictation."}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="showcase-action-btn"
+                      onClick={() => {
+                        setSelectedPlan(userTier === "basic" ? "plus" : userTier)
+                        setShowPremiumModal(true)
+                      }}
+                    >
+                      <Icon name={isUnlimited ? "crown" : "zap"} size={16} />
+                      <span>
+                        {isUnlimited
+                          ? language === "id"
+                            ? "Kelola Paket / Ganti Periode"
+                            : "Manage Subscription"
+                          : language === "id"
+                            ? "Upgrade ke Pro / Plus Sekarang"
+                            : "Upgrade to Pro / Plus Now"}
+                      </span>
+                    </button>
                   </div>
 
                   {/* Pilihan Tone Dropdown */}
