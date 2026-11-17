@@ -2314,26 +2314,27 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .handling-detail-body {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 16px 24px;
+  padding: 12px 16px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .handling-detail-hero {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .handling-hero-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   background: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
   color: var(--ink);
   display: grid;
@@ -2342,7 +2343,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 
 .handling-detail-hero h2 {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   color: var(--ink);
   margin: 0;
@@ -2350,44 +2351,69 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 
 .handling-detail-hero p {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--muted);
   margin: 0;
   line-height: 1.45;
 }
 
-.handling-topic-tabs {
+/* 2x2 Grid Topic Selector: Robust, Never Cut-Off */
+.handling-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.handling-topic-tile {
   display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
-
-.handling-topic-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.handling-tab {
-  flex: 1;
-  min-width: max-content;
-  padding: 8px 12px;
-  border-radius: 12px;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  min-height: 44px;
+  border-radius: 14px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--muted);
+  border: 1.5px solid var(--border);
   cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: center;
+  text-align: left;
+  transition: all 0.16s ease;
+  flex-shrink: 0;
 }
 
-.handling-tab.active {
-  background: var(--primary);
-  color: var(--on-primary);
-  border-color: var(--primary);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+.handling-topic-tile:hover {
+  background: var(--surface-2);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+.handling-topic-tile:active {
+  transform: scale(0.98);
+}
+
+.handling-topic-tile.active {
+  background: color-mix(in srgb, var(--surface) 90%, var(--tile-accent, var(--primary)));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--tile-accent, var(--primary)) 22%, transparent);
+}
+
+.topic-tile-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  transition: all 0.16s ease;
+}
+
+.topic-tile-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.handling-topic-tile.active .topic-tile-label {
+  font-weight: 800;
 }
 
 .handling-active-card {
@@ -2398,6 +2424,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .active-card-top h3 {

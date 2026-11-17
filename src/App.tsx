@@ -5139,26 +5139,68 @@ function App() {
                 </p>
               </div>
 
-              {/* Topic Selector Tabs */}
-              <div className="handling-topic-tabs">
+              {/* Topic Selector Grid (2x2 Grid, Visible & Non-clipping) */}
+              <div className="handling-topic-grid">
                 {[
-                  { id: "fragile", label: language === "id" ? "Pecah Belah" : "Fragile" },
-                  { id: "perishable", label: language === "id" ? "Makanan/Dingin" : "Perishable" },
-                  { id: "absent", label: language === "id" ? "Penerima Kosong" : "Absent" },
-                  { id: "damaged", label: language === "id" ? "Paket Rusak" : "Damaged" },
-                ].map((tab) => (
-                  <button
-                    type="button"
-                    key={tab.id}
-                    className={`handling-tab ${selectedHandlingTopic === tab.id ? "active" : ""}`}
-                    onClick={() => {
-                      triggerHaptic(15)
-                      setSelectedHandlingTopic(tab.id)
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                  {
+                    id: "fragile",
+                    label: language === "id" ? "Pecah Belah" : "Fragile",
+                    icon: "package",
+                    color: "#f59e0b",
+                  },
+                  {
+                    id: "perishable",
+                    label: language === "id" ? "Makanan / Dingin" : "Perishable",
+                    icon: "clock",
+                    color: "#0284c7",
+                  },
+                  {
+                    id: "absent",
+                    label: language === "id" ? "Penerima Kosong" : "Absent",
+                    icon: "user",
+                    color: "#10b981",
+                  },
+                  {
+                    id: "damaged",
+                    label: language === "id" ? "Paket Rusak" : "Damaged",
+                    icon: "warning",
+                    color: "#ef4444",
+                  },
+                ].map((tab) => {
+                  const isActive = selectedHandlingTopic === tab.id
+                  return (
+                    <button
+                      type="button"
+                      key={tab.id}
+                      className={`handling-topic-tile ${isActive ? "active" : ""}`}
+                      style={
+                        isActive
+                          ? ({
+                              borderColor: tab.color,
+                              "--tile-accent": tab.color,
+                            } as React.CSSProperties)
+                          : {}
+                      }
+                      onClick={() => {
+                        triggerHaptic(15)
+                        setSelectedHandlingTopic(tab.id)
+                      }}
+                    >
+                      <span
+                        className="topic-tile-icon"
+                        style={{
+                          color: isActive ? "#ffffff" : tab.color,
+                          background: isActive
+                            ? tab.color
+                            : `color-mix(in srgb, ${tab.color} 14%, var(--surface-2))`,
+                        }}
+                      >
+                        <Icon name={tab.icon as IconName} size={15} />
+                      </span>
+                      <span className="topic-tile-label">{tab.label}</span>
+                    </button>
+                  )
+                })}
               </div>
 
               {/* Active Topic Detailed Content Card */}
