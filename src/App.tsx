@@ -771,10 +771,9 @@ function App() {
   const [splashStep, setSplashStep] = useState(0)
   const [showWelcome, setShowWelcome] = useState(() => {
     try {
-      return localStorage.getItem("pardalani_welcomed") !== "true"
-    } catch {
-      return true
-    }
+      localStorage.removeItem("pardalani_welcomed")
+    } catch {}
+    return true
   })
   const [welcomeSlide, setWelcomeSlide] = useState(0)
   const [showGooglePicker, setShowGooglePicker] = useState(false)
@@ -1197,9 +1196,6 @@ function App() {
       }
       if (showWelcome) {
         setShowWelcome(false)
-        try {
-          localStorage.setItem("pardalani_welcomed", "true")
-        } catch {}
         return true
       }
       if (overlay !== "none") {
@@ -3216,9 +3212,6 @@ function App() {
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setShowWelcome(false)
-                try {
-                  localStorage.setItem("pardalani_welcomed", "true")
-                } catch {}
               }
             }}
           >
@@ -3227,12 +3220,7 @@ function App() {
                 <button
                   type="button"
                   className="welcome-close-btn"
-                  onClick={() => {
-                    setShowWelcome(false)
-                    try {
-                      localStorage.setItem("pardalani_welcomed", "true")
-                    } catch {}
-                  }}
+                  onClick={() => setShowWelcome(false)}
                   aria-label="Tutup panduan"
                 >
                   <Icon name="close" size={14} />
@@ -3258,34 +3246,8 @@ function App() {
                   {/* Slide 1 – Urutan Rute Tercepat */}
                   <div className="wfc-slide">
                     <div className="wfc-card">
-                      <div className="wfc-top-row">
-                        <span className="wfc-corner-icon wfc-corner-icon--route">
-                          <Icon name="route" size={13} />
-                        </span>
-                        <button
-                          type="button"
-                          className="wfc-corner-link"
-                          aria-label={language === "id" ? "Buka optimasi rute" : "Open route optimization"}
-                          title={language === "id" ? "Buka optimasi rute" : "Open route optimization"}
-                          onClick={() => {
-                            setShowWelcome(false)
-                            try {
-                              localStorage.setItem("pardalani_welcomed", "true")
-                            } catch {}
-                            triggerHaptic(20)
-                            quickAction("route")
-                            notify(
-                              language === "id"
-                                ? "Memulai optimasi rute tercepat..."
-                                : "Optimizing fastest route...",
-                            )
-                          }}
-                        >
-                          <Icon name="external" size={13} />
-                        </button>
-                      </div>
                       <h3 className="wfc-heading">
-                        {language === "id" ? "Urutan Rute\nTercepat" : "Optimal Route\nSequence"}
+                        {language === "id" ? "Urutan Rute Tercepat" : "Optimal Route Sequence"}
                       </h3>
                       <div className="wfc-img-frame">
                         <img
@@ -3306,29 +3268,8 @@ function App() {
                   {/* Slide 2 – Pindai Resi */}
                   <div className="wfc-slide">
                     <div className="wfc-card">
-                      <div className="wfc-top-row">
-                        <span className="wfc-corner-icon wfc-corner-icon--scan">
-                          <Icon name="scan" size={13} />
-                        </span>
-                        <button
-                          type="button"
-                          className="wfc-corner-link"
-                          aria-label={language === "id" ? "Buka pemindai resi" : "Open label scanner"}
-                          title={language === "id" ? "Buka pemindai resi" : "Open label scanner"}
-                          onClick={() => {
-                            setShowWelcome(false)
-                            try {
-                              localStorage.setItem("pardalani_welcomed", "true")
-                            } catch {}
-                            triggerHaptic(20)
-                            setOverlay("scanner")
-                          }}
-                        >
-                          <Icon name="external" size={13} />
-                        </button>
-                      </div>
                       <h3 className="wfc-heading">
-                        {language === "id" ? "Pindai Resi\nOtomatis" : "Instant Label\nScan"}
+                        {language === "id" ? "Pindai Resi Otomatis" : "Instant Label Scan"}
                       </h3>
                       <div className="wfc-img-frame">
                         <img
@@ -3349,34 +3290,8 @@ function App() {
                   {/* Slide 3 – Dikte Suara */}
                   <div className="wfc-slide">
                     <div className="wfc-card">
-                      <div className="wfc-top-row">
-                        <span className="wfc-corner-icon wfc-corner-icon--voice">
-                          <Icon name="mic" size={13} />
-                        </span>
-                        <button
-                          type="button"
-                          className="wfc-corner-link"
-                          aria-label={language === "id" ? "Mulai dikte suara" : "Start voice dictation"}
-                          title={language === "id" ? "Mulai dikte suara" : "Start voice dictation"}
-                          onClick={() => {
-                            setShowWelcome(false)
-                            try {
-                              localStorage.setItem("pardalani_welcomed", "true")
-                            } catch {}
-                            triggerHaptic(20)
-                            startVoiceInput()
-                            notify(
-                              language === "id"
-                                ? "Mikrofon aktif. Silakan bicara..."
-                                : "Microphone active. Speak now...",
-                            )
-                          }}
-                        >
-                          <Icon name="external" size={13} />
-                        </button>
-                      </div>
                       <h3 className="wfc-heading">
-                        {language === "id" ? "Dikte Suara\nHands-free" : "Voice Input\nHands-free"}
+                        {language === "id" ? "Dikte Suara Hands-free" : "Voice Input Hands-free"}
                       </h3>
                       <div className="wfc-img-frame">
                         <img
@@ -3397,7 +3312,7 @@ function App() {
 
                 {/* Slide dots */}
                 <div className="wfc-dots">
-                  {[0, 1, 2].map(i => (
+                  {[0, 1, 2].map((i) => (
                     <button
                       key={i}
                       type="button"
@@ -3414,9 +3329,6 @@ function App() {
                 className="welcome-primary-btn"
                 onClick={() => {
                   setShowWelcome(false)
-                  try {
-                    localStorage.setItem("pardalani_welcomed", "true")
-                  } catch {}
                   notify(
                     language === "id"
                       ? "Selamat bertugas! Rute Anda sudah siap."
