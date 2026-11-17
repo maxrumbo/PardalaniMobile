@@ -1153,7 +1153,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 
 /* ── The card ── */
 .wfc-card {
-  background: #13142a;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 14px 14px 13px;
   display: flex;
@@ -1161,11 +1162,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   gap: 10px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 36px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme='dark'] .wfc-card {
-  background: #0e0f1f;
+  background: #13142a;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 /* ── Top row: themed icon left + arrow right ── */
@@ -1183,33 +1186,73 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   place-items: center;
 }
 
-.wfc-corner-icon--route { background: rgba(201,244,59,0.16); color: #c9f43b; }
-.wfc-corner-icon--scan  { background: rgba(56,189,248,0.16); color: #38bdf8; }
-.wfc-corner-icon--voice { background: rgba(74,222,128,0.16); color: #4ade80; }
+.wfc-corner-icon--route {
+  background: color-mix(in srgb, var(--accent) 30%, var(--surface-2));
+  color: var(--primary);
+}
+.wfc-corner-icon--scan {
+  background: rgba(14, 165, 233, 0.15);
+  color: #0284c7;
+}
+.wfc-corner-icon--voice {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+}
+
+[data-theme='dark'] .wfc-corner-icon--route {
+  background: rgba(201, 244, 59, 0.16);
+  color: #c9f43b;
+}
+[data-theme='dark'] .wfc-corner-icon--scan {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+}
+[data-theme='dark'] .wfc-corner-icon--voice {
+  background: rgba(74, 222, 128, 0.16);
+  color: #4ade80;
+}
 
 .wfc-corner-link {
   width: 28px;
   height: 28px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface);
+  border: 1px solid var(--border);
   display: grid;
   place-items: center;
-  color: #ffffff;
+  color: var(--ink);
   cursor: pointer;
   padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .wfc-corner-link:hover {
-  background: rgba(255, 255, 255, 0.26);
-  border-color: rgba(255, 255, 255, 0.45);
-  color: #c9f43b;
-  transform: scale(1.1) translateY(-1px);
+  background: color-mix(in srgb, var(--accent) 35%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  color: var(--primary);
+  transform: scale(1.08) translateY(-1px);
 }
 
 .wfc-corner-link:active {
   transform: scale(0.92);
+  background: var(--surface-2);
+}
+
+[data-theme='dark'] .wfc-corner-link {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+[data-theme='dark'] .wfc-corner-link:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #c9f43b;
+}
+
+[data-theme='dark'] .wfc-corner-link:active {
   background: rgba(255, 255, 255, 0.16);
 }
 
@@ -1217,7 +1260,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .wfc-heading {
   font-size: 20px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ink);
   margin: 0;
   letter-spacing: -0.025em;
   line-height: 1.18;
@@ -1225,13 +1268,23 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
+[data-theme='dark'] .wfc-heading {
+  color: #ffffff;
+}
+
 /* ── Real photo frame ── */
 .wfc-img-frame {
   position: relative;
-  border-radius: 13px;
+  border-radius: 14px;
   overflow: hidden;
   height: 148px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+
+[data-theme='dark'] .wfc-img-frame {
   background: #0d0e1a;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .wfc-img {
@@ -1241,48 +1294,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   display: block;
 }
 
-/* dark gradient bottom of image */
+/* subtle gradient bottom of image */
 .wfc-img-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(8,8,22,0.65) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, transparent 45%);
   pointer-events: none;
 }
 
-/* Badge overlaps bottom-right of image */
-.wfc-img-badge {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 9.5px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.92);
-  background: rgba(10,12,30,0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 999px;
-  padding: 3px 10px 3px 7px;
-  white-space: nowrap;
-}
-
-.wfc-img-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
+[data-theme='dark'] .wfc-img-overlay {
+  background: linear-gradient(to top, rgba(8, 8, 22, 0.65) 0%, transparent 55%);
 }
 
 /* ── Short description below image ── */
 .wfc-caption {
   font-size: 11px;
-  color: rgba(255,255,255,0.42);
+  color: var(--muted);
   margin: 0;
   line-height: 1.5;
   font-style: italic;
+}
+
+[data-theme='dark'] .wfc-caption {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 /* ── Slide indicator dots ── */
@@ -1308,6 +1342,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .wfc-dot-btn.active {
   width: 22px;
   border-radius: 999px;
+  background: var(--primary);
+}
+
+[data-theme='dark'] .wfc-dot-btn.active {
   background: #c9f43b;
 }
 
