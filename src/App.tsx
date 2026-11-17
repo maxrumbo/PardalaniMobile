@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 type Language = "id" | "en"
 type Theme = "light" | "dark"
-type Overlay = "none" | "drawer" | "settings" | "saved" | "log" | "print" | "media" | "auth" | "scanner"
+type Overlay = "none" | "drawer" | "settings" | "saved" | "log" | "print" | "media" | "auth" | "scanner" | "handling_faq" | "handling_detail"
 type AuthMode = "login" | "register" | "forgot" | "otp"
 type IconName = "menu" | "search" | "close" | "more" | "route" | "message" | "scan" | "package" | "camera" | "image" | "file" | "mic" | "send" | "plus" | "printer" | "share" | "speaker" | "pin" | "edit" | "trash" | "bookmark" | "log" | "help" | "settings" | "user" | "shield" | "sun" | "moon" | "language" | "sliders" | "link" | "copy" | "refresh" | "external" | "check" | "warning" | "chevron" | "clock" | "phone" | "whatsapp"
 
@@ -926,6 +926,7 @@ function App() {
   const scannerStreamRef = useRef<MediaStream | null>(null)
   const [scannerFlash, setScannerFlash] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
+  const [selectedHandlingTopic, setSelectedHandlingTopic] = useState<string>("fragile")
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const [complaintCategory, setComplaintCategory] = useState("Rute & Navigasi")
   const [complaintMessage, setComplaintMessage] = useState("")
@@ -2914,9 +2915,11 @@ function App() {
                       setOverlay("print")
                     } else if (type === "scan") {
                       setOverlay("scanner")
+                    } else if (type === "handling") {
+                      setOverlay("handling_faq")
                     } else {
                       quickAction(
-                        type as "route" | "wa" | "handling",
+                        type as "route" | "wa",
                       )
                     }
                   }}
@@ -4947,6 +4950,318 @@ function App() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {overlay === "handling_faq" && (
+        <div
+          className="overlay sheet-overlay faq-sheet-overlay"
+          role="presentation"
+          onMouseDown={() => setOverlay("none")}
+        >
+          <section
+            className="handling-faq-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="faq-popup-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <span className="sheet-handle" />
+            <div className="handling-faq-header">
+              <div className="handling-faq-title-wrap">
+                <span className="handling-faq-icon">
+                  <Icon name="package" size={18} />
+                </span>
+                <div>
+                  <h3 id="faq-popup-title">
+                    {language === "id" ? "Info & FAQ Penanganan" : "Handling & FAQ"}
+                  </h3>
+                  <p>
+                    {language === "id"
+                      ? "Pilih panduan cepat atau buka halaman SOP lengkap"
+                      : "Choose quick guide or open full SOP handbook"}
+                  </p>
+                </div>
+              </div>
+              <IconButton
+                icon="close"
+                label="Close"
+                onClick={() => setOverlay("none")}
+              />
+            </div>
+
+            <div className="handling-faq-cards">
+              {[
+                {
+                  id: "fragile",
+                  title: language === "id" ? "Paket Pecah Belah (Fragile)" : "Fragile Items",
+                  desc: language === "id" ? "Posisi paling atas, jangan tertimpa, tanda panah tegak." : "Top position, never crushed, keep arrows upward.",
+                  tag: language === "id" ? "SOP Prioritas" : "Priority SOP",
+                  tagColor: "#f59e0b",
+                  icon: "package",
+                },
+                {
+                  id: "perishable",
+                  title: language === "id" ? "Makanan & Frozen Food" : "Perishable & Food",
+                  desc: language === "id" ? "Maksimal antar 2 jam, dahulukan di urutan terdepan." : "Max 2 hours delivery, prioritize in early stops.",
+                  tag: language === "id" ? "Batas Waktu" : "Urgent Time",
+                  tagColor: "#0284c7",
+                  icon: "clock",
+                },
+                {
+                  id: "absent",
+                  title: language === "id" ? "Penerima Tidak di Rumah" : "Recipient Unavailable",
+                  desc: language === "id" ? "Telepon 2x, opsi titip satpam atau atur antar ulang." : "Call twice, drop with security or reschedule.",
+                  tag: language === "id" ? "SOP Titip/Retur" : "Drop / Return",
+                  tagColor: "#10b981",
+                  icon: "user",
+                },
+                {
+                  id: "damaged",
+                  title: language === "id" ? "Paket Rusak atau Basah" : "Damaged Packaging",
+                  desc: language === "id" ? "Wajib foto 4 sisi resi & konfirmasi sebelum serah." : "Photo 4 sides of label & confirm before handover.",
+                  tag: language === "id" ? "Klaim Garansi" : "Claims",
+                  tagColor: "#ef4444",
+                  icon: "warning",
+                },
+              ].map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  className="handling-faq-item"
+                  onClick={() => {
+                    triggerHaptic(20)
+                    setSelectedHandlingTopic(item.id)
+                    setOverlay("handling_detail")
+                  }}
+                >
+                  <div className="faq-item-left">
+                    <span className="faq-item-icon" style={{ color: item.tagColor, background: `color-mix(in srgb, ${item.tagColor} 14%, var(--surface))` }}>
+                      <Icon name={item.icon as IconName} size={16} />
+                    </span>
+                    <div className="faq-item-text">
+                      <div className="faq-item-title-row">
+                        <strong>{item.title}</strong>
+                        <span className="faq-item-badge" style={{ color: item.tagColor, background: `color-mix(in srgb, ${item.tagColor} 12%, transparent)` }}>
+                          {item.tag}
+                        </span>
+                      </div>
+                      <p>{item.desc}</p>
+                    </div>
+                  </div>
+                  <span className="faq-item-arrow">
+                    <Icon name="chevron" size={14} style={{ transform: "rotate(-90deg)" }} />
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="handling-faq-footer">
+              <button
+                type="button"
+                className="handling-full-btn"
+                onClick={() => {
+                  triggerHaptic(20)
+                  setSelectedHandlingTopic("fragile")
+                  setOverlay("handling_detail")
+                }}
+              >
+                <span>{language === "id" ? "Buka Halaman Khusus SOP Lengkap" : "Open Dedicated Full SOP Page"}</span>
+                <Icon name="external" size={14} />
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {overlay === "handling_detail" && (
+        <div
+          className="overlay sheet-overlay handling-detail-overlay"
+          role="presentation"
+          onMouseDown={() => setOverlay("none")}
+        >
+          <section
+            className="handling-detail-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="handling-detail-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {/* Header with Back button */}
+            <div className="handling-detail-header">
+              <button
+                type="button"
+                className="handling-back-btn"
+                onClick={() => {
+                  triggerHaptic(20)
+                  setOverlay("handling_faq")
+                }}
+              >
+                <Icon name="chevron" size={16} style={{ transform: "rotate(90deg)" }} />
+                <span>{language === "id" ? "Kembali ke FAQ" : "Back to FAQ"}</span>
+              </button>
+              <IconButton
+                icon="close"
+                label="Close"
+                onClick={() => setOverlay("none")}
+              />
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="handling-detail-body">
+              <div className="handling-detail-hero">
+                <span className="handling-hero-icon">
+                  <Icon name="package" size={24} />
+                </span>
+                <h2 id="handling-detail-title">
+                  {language === "id" ? "Buku Panduan & SOP Penanganan Paket" : "Parcel Handling & SOP Handbook"}
+                </h2>
+                <p>
+                  {language === "id"
+                    ? "Standar operasional prosedur resmi Pardalani untuk menjaga keamanan paket kurir di lapangan."
+                    : "Official Pardalani operational guidelines for secure delivery runs."}
+                </p>
+              </div>
+
+              {/* Topic Selector Tabs */}
+              <div className="handling-topic-tabs">
+                {[
+                  { id: "fragile", label: language === "id" ? "Pecah Belah" : "Fragile" },
+                  { id: "perishable", label: language === "id" ? "Makanan/Dingin" : "Perishable" },
+                  { id: "absent", label: language === "id" ? "Penerima Kosong" : "Absent" },
+                  { id: "damaged", label: language === "id" ? "Paket Rusak" : "Damaged" },
+                ].map((tab) => (
+                  <button
+                    type="button"
+                    key={tab.id}
+                    className={`handling-tab ${selectedHandlingTopic === tab.id ? "active" : ""}`}
+                    onClick={() => {
+                      triggerHaptic(15)
+                      setSelectedHandlingTopic(tab.id)
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Active Topic Detailed Content Card */}
+              {(() => {
+                const topic = {
+                  fragile: {
+                    title: language === "id" ? "SOP Paket Pecah Belah (Fragile)" : "Fragile Goods SOP",
+                    subtitle: language === "id" ? "Keramik, Kaca, Botol Parfum, Elektronik Sensitif" : "Ceramics, Glass, Perfumes, Sensitive Electronics",
+                    alert: language === "id" ? "Paling rawan komplain! Pastikan tanda panah selalu menghadap ke atas." : "High claim risk! Ensure 'This Way Up' arrows are strictly followed.",
+                    steps: [
+                      language === "id" ? "Tempatkan di posisi paling atas dalam tas kurir. Dilarang keras menimpa dengan barang berat (seperti deterjen / kaleng)." : "Keep at the very top of courier bag. Strictly forbidden to stack heavy items on top.",
+                      language === "id" ? "Periksa segel lakban fragile sebelum berangkat. Jika segel kendor, tempelkan lakban pengaman tambahan." : "Inspect fragile tape seal before departure. Add safety tape if loose.",
+                      language === "id" ? "Saat berkendara, hindari jalan berlubang dan guncangan mendadak." : "Avoid potholes and sudden speed bumps during transit.",
+                      language === "id" ? "Serahkan langsung ke tangan penerima dan ambil foto paket utuh." : "Hand over directly to recipient and take a clear photo of the intact parcel.",
+                    ],
+                    aiPrompt: language === "id" ? "Bagaimana menangani paket pecah belah yang ada bunyi gemeretak di jalan?" : "How should I handle a fragile parcel that is rattling on the road?",
+                  },
+                  perishable: {
+                    title: language === "id" ? "SOP Makanan Cepat Basi & Frozen" : "Perishable & Chilled Food SOP",
+                    subtitle: language === "id" ? "Daging, Sayur Segar, Frozen Food, Makanan Basah" : "Fresh Meat, Veggies, Frozen Food, Fresh Meals",
+                    alert: language === "id" ? "Waktu kritis: maksimal 2 jam sejak keberangkatan dari depo." : "Critical time window: maximum 2 hours from depo load.",
+                    steps: [
+                      language === "id" ? "Prioritaskan sebagai titik antar nomor #1 atau #2 di rute harian." : "Prioritize as stop #1 or #2 in today's active delivery sequence.",
+                      language === "id" ? "Simpan di dalam kantong thermal / terlindung dari sinar matahari langsung dan hawa panas knalpot." : "Store inside thermal bag away from direct sunlight and exhaust heat.",
+                      language === "id" ? "Kirim chat WhatsApp otomatis 15 menit sebelum tiba agar penerima siap menyimpan di lemari es." : "Send automated WhatsApp notification 15 mins before arrival so recipient is ready with fridge.",
+                      language === "id" ? "Jika penerima tidak di rumah, dilarang meletakkan di teras terbuka tanpa izin tertulis." : "Never leave perishable items in outdoor open porch without explicit written consent.",
+                    ],
+                    aiPrompt: language === "id" ? "Saya bawa makanan beku tapi penerima minta antar nanti sore, apa solusinya?" : "I have frozen food but recipient asks to deliver this evening, what should I do?",
+                  },
+                  absent: {
+                    title: language === "id" ? "SOP Penerima Tidak di Rumah / Rumah Kosong" : "Recipient Unavailable SOP",
+                    subtitle: language === "id" ? "Rumah Digembok, Kantor Tutup, Tidak Menjawab Panggilan" : "Locked Gate, Closed Office, Unanswered Calls",
+                    alert: language === "id" ? "Dilarang melempar paket ke dalam pagar tanpa instruksi resmi penerima!" : "Strictly forbidden to throw parcel over fence without written permission!",
+                    steps: [
+                      language === "id" ? "Lakukan panggilan telepon 2 kali berselang 3 menit dan kirim pesan draft WhatsApp otomatis." : "Call recipient twice with 3 mins gap and send official WhatsApp template.",
+                      language === "id" ? "Jika disetujui penerima, titipkan ke satpam komplek atau tetangga terdekat dengan mencatat nama jelas penerima titipan." : "If authorized, drop with security guard or next-door neighbor, recording their full name.",
+                      language === "id" ? "Ambil foto bukti serah terima yang memperlihatkan nomor rumah atau pos satpam." : "Take clear handover photo showing house number or guard post clearly.",
+                      language === "id" ? "Jika tidak ada jawaban setelah 15 menit, tandai sebagai Antar Ulang (Reschedule) di sistem." : "If no response within 15 mins, mark as Reschedule and bring back safely to Hub.",
+                    ],
+                    aiPrompt: language === "id" ? "Penerima tidak di rumah dan satpam komplek menolak dititipi paket, bagaimana solusinya?" : "Recipient is away and guard refuses to accept the parcel, what is the protocol?",
+                  },
+                  damaged: {
+                    title: language === "id" ? "SOP Paket Rusak / Basah / Kemasan Penyok" : "Damaged / Wet Packaging SOP",
+                    subtitle: language === "id" ? "Kardus Sobek, Terkena Hujan, Segel Rusak" : "Torn Carton, Water-damaged, Broken Seal",
+                    alert: language === "id" ? "Lindungi diri Anda dari ganti rugi dengan dokumentasi foto sebelum diserahkan." : "Protect yourself from claims by documenting clear photos before handover.",
+                    steps: [
+                      language === "id" ? "Ambil foto jelas 4 sisi kemasan yang memperlihatkan barcode resi dan bagian kerusakan sebelum berangkat." : "Take 4 clear photos showing shipping barcode and the damaged areas.",
+                      language === "id" ? "Saat bertemu penerima, tunjukkan kondisi fisik paket dengan jujur sebelum meminta tanda tangan/foto." : "Honestly disclose package condition to recipient before requesting handover signature.",
+                      language === "id" ? "Jika penerima komplain atau menolak, jangan berdebat dan arahkan klaim garansi resmi via CS." : "If recipient complains or rejects, do not argue; guide them to official CS claim.",
+                      language === "id" ? "Laporkan status 'Paket Ditolak/Rusak' ke Admin Hub untuk pencatatan ganti rugi gudang." : "Report 'Rejected/Damaged' to Hub Admin for warehouse compensation logging.",
+                    ],
+                    aiPrompt: language === "id" ? "Kemasan paket basah terkena hujan di jalan dan penerima menolak terima, bagaimana prosedurnya?" : "Parcel got wet in the rain and recipient refuses delivery, what is the procedure?",
+                  },
+                }[selectedHandlingTopic as "fragile" | "perishable" | "absent" | "damaged"] || {
+                  title: "SOP Penanganan Paket",
+                  subtitle: "Panduan umum pengantaran kurir",
+                  alert: "Patuhi keselamatan berkendara dan keamanan paket.",
+                  steps: [],
+                  aiPrompt: "Bagaimana cara penanganan paket yang baik?",
+                }
+
+                return (
+                  <div className="handling-active-card">
+                    <div className="active-card-top">
+                      <div>
+                        <h3>{topic.title}</h3>
+                        <p>{topic.subtitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="active-card-alert">
+                      <Icon name="warning" size={16} />
+                      <span>{topic.alert}</span>
+                    </div>
+
+                    <div className="active-card-steps">
+                      <h4>{language === "id" ? "Langkah-Langkah SOP Lapangan:" : "Field SOP Checklist:"}</h4>
+                      <ul>
+                        {topic.steps.map((st, i) => (
+                          <li key={i}>
+                            <span className="step-num">{i + 1}</span>
+                            <span>{st}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="active-card-actions">
+                      <button
+                        type="button"
+                        className="active-ai-btn"
+                        onClick={() => {
+                          triggerHaptic(20)
+                          setOverlay("none")
+                          sendChatMessage(topic.aiPrompt)
+                        }}
+                      >
+                        <Icon name="message" size={15} />
+                        <span>{language === "id" ? "Tanyakan Solusi Khusus ke AI" : "Ask AI for Solution"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="active-hub-btn"
+                        onClick={() => {
+                          triggerHaptic(20)
+                          const telUrl = "tel:081260194821"
+                          window.open(telUrl, "_self")
+                        }}
+                      >
+                        <Icon name="phone" size={15} />
+                        <span>{language === "id" ? "Hubungi Koordinator Hub" : "Call Hub Dispatch"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          </section>
         </div>
       )}
 
