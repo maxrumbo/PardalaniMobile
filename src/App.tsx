@@ -2709,31 +2709,11 @@ function App() {
             label={t.history}
             onClick={() => setOverlay("drawer")}
           />
-          <div
-            className="brand-lockup"
-            style={activeSessionId !== "session_1" ? { cursor: "pointer" } : undefined}
-            onClick={() => {
-              if (activeSessionId !== "session_1") {
-                setActiveSessionId("session_1")
-                setChatMessages([])
-              }
-            }}
-            title={activeSessionId !== "session_1" ? (language === "id" ? "Kembali ke Beranda" : "Back to Home") : undefined}
-          >
+          <div className="brand-lockup">
             <BrandMark />
             <div>
-              <strong>
-                {activeSessionId === "session_1"
-                  ? "Pardalani"
-                  : (history.find((s) => String(s.id) === String(activeSessionId))?.title || (language === "id" ? "Pesan Baru" : "New Chat"))}
-              </strong>
-              <span>
-                {activeSessionId === "session_1"
-                  ? "Dongan Setia Kurir"
-                  : language === "id"
-                    ? "Ruang Pesan Baru"
-                    : "New Chat Room"}
-              </span>
+              <strong>Pardalani</strong>
+              <span>Dongan Setia Kurir</span>
             </div>
           </div>
           <div className="header-actions">
