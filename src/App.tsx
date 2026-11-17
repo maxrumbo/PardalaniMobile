@@ -2850,7 +2850,6 @@ function App() {
                       <strong>Pardalani</strong>
                       <span>Kopilot Rute AI</span>
                     </div>
-                    <span className="ai-badge">AI</span>
                   </div>
                   {regenerating ? (
                     <div
@@ -3014,7 +3013,6 @@ function App() {
                           : "AI Route Copilot"}
                       </span>
                     </div>
-                    <span className="ai-badge">AI</span>
                   </div>
                   <p
                     style={{
