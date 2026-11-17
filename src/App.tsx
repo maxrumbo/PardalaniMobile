@@ -4,7 +4,7 @@ type Language = "id" | "en"
 type Theme = "light" | "dark"
 type Overlay = "none" | "drawer" | "settings" | "saved" | "log" | "print" | "media" | "auth" | "scanner" | "handling_faq" | "handling_detail"
 type AuthMode = "login" | "register" | "forgot" | "otp"
-type IconName = "menu" | "search" | "close" | "more" | "route" | "message" | "scan" | "package" | "camera" | "image" | "file" | "mic" | "send" | "plus" | "printer" | "share" | "speaker" | "pin" | "edit" | "trash" | "bookmark" | "log" | "help" | "settings" | "user" | "shield" | "sun" | "moon" | "language" | "sliders" | "link" | "copy" | "refresh" | "external" | "check" | "warning" | "chevron" | "clock" | "phone" | "whatsapp"
+type IconName = "menu" | "search" | "close" | "more" | "route" | "message" | "scan" | "package" | "camera" | "image" | "file" | "mic" | "send" | "plus" | "printer" | "share" | "speaker" | "pin" | "edit" | "trash" | "bookmark" | "log" | "help" | "settings" | "user" | "shield" | "sun" | "moon" | "language" | "sliders" | "link" | "copy" | "refresh" | "external" | "check" | "warning" | "chevron" | "clock" | "phone" | "whatsapp" | "crown" | "zap" | "tag" | "creditCard"
 
 type RouteStep = {
   no: number
@@ -425,6 +425,29 @@ const iconPaths: Record<IconName, React.ReactNode> = {
       <path d="M12 2a10 10 0 0 0-8.66 15L2 22l5.16-1.34A10 10 0 1 0 12 2Zm0 18.18a8.16 8.16 0 0 1-4.16-1.14l-.3-.18-3.09.81.82-3.01-.2-.31a8.18 8.18 0 1 1 6.93 3.83Z" />
     </>
   ),
+  crown: (
+    <>
+      <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z" />
+      <path d="M5 20h14" />
+    </>
+  ),
+  zap: (
+    <>
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </>
+  ),
+  tag: (
+    <>
+      <path d="M12 2H2v10l9.29 9.29a2.41 2.41 0 0 0 3.42 0l6.58-6.58a2.41 2.41 0 0 0 0-3.42L12 2Z" />
+      <path d="M7 7h.01" />
+    </>
+  ),
+  creditCard: (
+    <>
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </>
+  ),
 }
 
 function Icon({
@@ -725,6 +748,235 @@ function SplashCourierScene() {
   )
 }
 
+type UserTier = "basic" | "plus" | "pro"
+type BundlePeriod = "weekly" | "monthly" | "quarterly" | "yearly"
+type PaymentMethod = "qris" | "ewallet" | "va" | "retail"
+type ToneOption = "ringkas" | "santai" | "formal" | "taktis" | "kustom"
+
+const TIER_DETAILS: Record<
+  UserTier,
+  {
+    name: string
+    badge: string
+    badgeColor: string
+    stopsLimit: string
+    aiLimit: string
+    desc: string
+    features: string[]
+  }
+> = {
+  basic: {
+    name: "Kurir Basic",
+    badge: "Gratis Selamanya",
+    badgeColor: "#64748b",
+    stopsLimit: "8 Titik Rute",
+    aiLimit: "4.000 Poin AI Harian",
+    desc: "Cocok untuk kurir harian pemula dengan rute pengantaran standar dalam 1 kelurahan.",
+    features: [
+      "Bantuan rute harian hingga 8 perhentian",
+      "Kapasitas AI 4.096 poin / hari",
+      "Draf WhatsApp standar ke penerima",
+      "Riwayat percakapan & rute tersimpan 3 hari",
+    ],
+  },
+  plus: {
+    name: "Pardalani Plus",
+    badge: "Paling Populer ⭐",
+    badgeColor: "#10b981",
+    stopsLimit: "35 Titik Rute",
+    aiLimit: "Unlimited AI Poin",
+    desc: "Pilihan utama kurir aktif reguler. Rute banyak tanpa batasan kuota pesan AI.",
+    features: [
+      "Kapasitas pesan & AI Unlimited (tanpa batas)",
+      "Optimalisasi rute multi-stop hingga 35 alamat",
+      "Draf pesan WhatsApp instan otomatis 1-klik",
+      "Fitur Dikte Suara (Voice Input) hands-free saat motor jalan",
+      "Riwayat rute tersimpan permanen tanpa batas",
+    ],
+  },
+  pro: {
+    name: "Pardalani Pro",
+    badge: "Armada & Hub 🚀",
+    badgeColor: "#8b5cf6",
+    stopsLimit: "50+ Titik Rute",
+    aiLimit: "Prioritas Kilat VIP",
+    desc: "Solusi terlengkap untuk kurir ekspedisi berat, armada kargo, & rute antar-kecamatan.",
+    features: [
+      "Semua fitur & benefit di Pardalani Plus",
+      "Multi-stop 50+ titik alamat dengan urutan cerdas",
+      "Deteksi banjir, macet & pasar tumpah realtime Sumatra & Jawa",
+      "Ekspor manifest rekapan pengantaran ke Excel / PDF",
+      "Server prioritas kilat (0 antrean respon AI)",
+      "Dukungan prioritas bantuan teknis 24/7",
+    ],
+  },
+}
+
+const BUNDLE_OPTIONS: {
+  id: BundlePeriod
+  name: string
+  desc: string
+  tag: string
+  plusPrice: number
+  proPrice: number
+  plusFormatted: string
+  proFormatted: string
+  savings: string
+}[] = [
+  {
+    id: "weekly",
+    name: "Paket Mingguan",
+    desc: "Bayar per minggu, fleksibel saat jadwal padat",
+    tag: "Fleksibel",
+    plusPrice: 15000,
+    proPrice: 29000,
+    plusFormatted: "Rp 15.000",
+    proFormatted: "Rp 29.000",
+    savings: "Fleksibel tanpa komitmen",
+  },
+  {
+    id: "monthly",
+    name: "Paket 1 Bulan",
+    desc: "Pilihan favorit kurir aktif sebulan penuh",
+    tag: "Terlaris 🔥",
+    plusPrice: 49000,
+    proPrice: 89000,
+    plusFormatted: "Rp 49.000",
+    proFormatted: "Rp 89.000",
+    savings: "Hemat 30% + Bonus Draf Pro",
+  },
+  {
+    id: "quarterly",
+    name: "Paket 3 Bulan",
+    desc: "Amankan kuota untuk peak season (Harbolnas/Ramadhan)",
+    tag: "Peak Season ⭐",
+    plusPrice: 119000,
+    proPrice: 219000,
+    plusFormatted: "Rp 119.000",
+    proFormatted: "Rp 219.000",
+    savings: "Hemat 45% (Hanya Rp 39rb/bln)",
+  },
+  {
+    id: "yearly",
+    name: "Paket 1 Tahun",
+    desc: "Investasi kerja terbaik, hemat lebih dari setengah harga",
+    tag: "Hemat Maksimal 🏆",
+    plusPrice: 399000,
+    proPrice: 699000,
+    plusFormatted: "Rp 399.000",
+    proFormatted: "Rp 699.000",
+    savings: "Hemat 55% + Kaos Pardalani",
+  },
+]
+
+const PAYMENT_METHODS: {
+  id: PaymentMethod
+  title: string
+  subtitle: string
+  badge: string
+  providers: string
+}[] = [
+  {
+    id: "qris",
+    title: "QRIS Instan Otomatis",
+    subtitle: "Scan cepat dari BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA",
+    badge: "Instan 5 Detik",
+    providers: "BCA · Mandiri · BRI · BNI · DANA · GoPay · ShopeePay",
+  },
+  {
+    id: "ewallet",
+    title: "Dompet Digital (E-Wallet)",
+    subtitle: "Langsung buka aplikasi GoPay, OVO, DANA, atau ShopeePay kurir",
+    badge: "Bebas Biaya Admin",
+    providers: "GoPay · OVO · DANA · ShopeePay",
+  },
+  {
+    id: "va",
+    title: "Virtual Account Bank",
+    subtitle: "Transfer via ATM, Mobile Banking, atau Internet Banking",
+    badge: "Verifikasi Otomatis",
+    providers: "BCA · BRI · Mandiri · BNI · Permata · CIMB",
+  },
+  {
+    id: "retail",
+    title: "Gerai Kasir Minimarket",
+    subtitle: "Bayar tunai di kasir Indomaret atau Alfamart saat istirahat di jalan",
+    badge: "Bayar Tunai Cash",
+    providers: "Indomaret · Alfamart · Alfamidi · Dan+Dan",
+  },
+]
+
+const tonePresets: Record<
+  ToneOption,
+  {
+    nameId: string
+    nameEn: string
+    descId: string
+    descEn: string
+    badge: string
+    badgeColor: string
+    promptId: string
+    promptEn: string
+    temp: number
+  }
+> = {
+  ringkas: {
+    nameId: "Ringkas & Cepat (Fokus Jalan)",
+    nameEn: "Concise & Fast (On the Road)",
+    descId: "Jawaban to-the-point, singkat, langsung ke nomor rumah, patokan, dan tindakan cepat tanpa basa-basi.",
+    descEn: "To the point, direct to house number and landmark with zero filler for fast reading while riding.",
+    badge: "Rekomendasi Kurir",
+    badgeColor: "#10b981",
+    promptId: "Kamu adalah asisten kurir lapangan Pardalani. Berikan jawaban super ringkas, padat, langsung ke nomor rumah, patokan penting, dan rute tercepat. Hindari basa-basi agar kurir dapat membaca cepat dengan aman saat di jalan.",
+    promptEn: "You are the Pardalani courier assistant. Keep answers brief and direct: addresses, landmarks, and swift route steps.",
+    temp: 0.2,
+  },
+  santai: {
+    nameId: "Santai & Akrab (Rekan Sesama Kurir)",
+    nameEn: "Casual & Friendly (Peer Courier)",
+    descId: "Gaya bicara hangat dan akrab seperti kawan seperjuangan kurir di pangkalan/hub logistik.",
+    descEn: "Warm, friendly tone like chatting with fellow delivery riders at the dispatch hub.",
+    badge: "Akrab & Hangat",
+    badgeColor: "#3b82f6",
+    promptId: "Kamu adalah asisten kurir dengan gaya bicara santai, bersahabat, seperti kawan seperjuangan kurir logistik. Berikan semangat dan tips pengantaran yang bersahabat namun tetap akurat dan solutif.",
+    promptEn: "You are a friendly courier assistant with a relaxed, supportive buddy tone.",
+    temp: 0.7,
+  },
+  formal: {
+    nameId: "Formal & Sopan (Standar Pelanggan / CS)",
+    nameEn: "Formal & Polite (Customer Service)",
+    descId: "Bahasa santun, baku, dan profesional. Sangat pas untuk draf pesan ke penerima paket atau kantor.",
+    descEn: "Courteous, professional Indonesian suitable for customer WhatsApp drafts and supervisor reports.",
+    badge: "Standar CS",
+    badgeColor: "#8b5cf6",
+    promptId: "Kamu adalah asisten kurir profesional. Gunakan bahasa Indonesia baku, sopan, dan terstruktur standar customer service untuk draf komunikasi penerima dan laporan operasional.",
+    promptEn: "You are a professional delivery assistant. Use formal, courteous grammar suitable for customer communications.",
+    temp: 0.4,
+  },
+  taktis: {
+    nameId: "Instruksi Taktis (Siaga Hambatan & Cuaca)",
+    nameEn: "Tactical & Safety Alert",
+    descId: "Prioritas peringatan cuaca hujan, pasar tumpah, gang sempit/rusak, dan SOP paket pecah belah.",
+    descEn: "Prioritizes route obstacles: rain, crowded markets, narrow alleys, and fragile parcel handling.",
+    badge: "Siaga Taktis",
+    badgeColor: "#f59e0b",
+    promptId: "Kamu adalah asisten navigasi taktis kurir. Selalu prioritaskan peringatan potensi hambatan (cuaca hujan, pasar tumpah, gang sempit) dan ingatkan SOP penanganan paket pecah belah di urutan paling atas.",
+    promptEn: "You are a tactical courier navigator. Always alert about hazards and fragile package SOPs first.",
+    temp: 0.3,
+  },
+  kustom: {
+    nameId: "Kustom Mandiri (Atur Instruksi Sendiri)",
+    nameEn: "Custom Instructions",
+    descId: "Tulis instruksi khusus sendiri sesuai preferensi dan alur operasional harianmu.",
+    descEn: "Write custom instructions tailored to your specific daily operations.",
+    badge: "Kustom",
+    badgeColor: "#ec4899",
+    promptId: "Kamu adalah asisten kurir yang ringkas, aman, dan memahami konteks pengantaran di Indonesia.",
+    promptEn: "You are a concise and safety-focused courier assistant who understands delivery operations in Indonesia.",
+    temp: 0.4,
+  },
+}
+
 function App() {
   const [language, setLanguage] = useState<Language>("id")
   const [theme, setTheme] = useState<Theme>(() => {
@@ -782,10 +1034,49 @@ function App() {
   const [showGoogleHelp, setShowGoogleHelp] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [speakingText, setSpeakingText] = useState<string | null>(null)
-  const [temperature, setTemperature] = useState(0.4)
-  const [systemPrompts, setSystemPrompts] = useState({
-    id: "Kamu adalah asisten kurir yang ringkas, aman, dan memahami konteks pengantaran di Indonesia.",
-    en: "You are a concise and safety-focused courier assistant who understands delivery operations in Indonesia.",
+  const [userTier, setUserTier] = useState<UserTier>(() => {
+    try {
+      const saved = localStorage.getItem("pardalani_user_tier")
+      if (saved === "plus" || saved === "pro" || saved === "basic") return saved
+    } catch {}
+    return "basic"
+  })
+  const [showPremiumModal, setShowPremiumModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<UserTier>("plus")
+  const [selectedBundle, setSelectedBundle] = useState<BundlePeriod>("monthly")
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("qris")
+  const [isActivatingPlan, setIsActivatingPlan] = useState(false)
+
+  const [selectedTone, setSelectedTone] = useState<ToneOption>(() => {
+    try {
+      const saved = localStorage.getItem("pardalani_tone")
+      if (saved && ["ringkas", "santai", "formal", "taktis", "kustom"].includes(saved)) {
+        return saved as ToneOption
+      }
+    } catch {}
+    return "ringkas"
+  })
+  const [temperature, setTemperature] = useState(() => {
+    try {
+      const saved = localStorage.getItem("pardalani_tone") as ToneOption
+      if (saved && tonePresets[saved]) return tonePresets[saved].temp
+    } catch {}
+    return 0.2
+  })
+  const [systemPrompts, setSystemPrompts] = useState(() => {
+    try {
+      const saved = localStorage.getItem("pardalani_tone") as ToneOption
+      if (saved && tonePresets[saved]) {
+        return {
+          id: tonePresets[saved].promptId,
+          en: tonePresets[saved].promptEn,
+        }
+      }
+    } catch {}
+    return {
+      id: tonePresets.ringkas.promptId,
+      en: tonePresets.ringkas.promptEn,
+    }
   })
   const [showAdvancedServer, setShowAdvancedServer] = useState(false)
 
@@ -920,7 +1211,8 @@ function App() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("")
-  const maxTokens = 4096
+  const isUnlimited = userTier === "pro" || userTier === "plus"
+  const maxTokens = isUnlimited ? 999999 : 4096
   const sessionText = [
     "Rute siap dijalankan",
     "4 perhentian telah dioptimalkan untuk efisiensi waktu dan konsumsi bahan bakar.",
@@ -930,16 +1222,60 @@ function App() {
     ...routeSteps.flatMap((step) => [step.address, step.status]),
     ...chatMessages.map((m) => m.text),
   ].join(" ")
-  const usedTokens = Math.min(
-    maxTokens,
-    Math.ceil(sessionText.length / 4),
-  )
-  const remainingTokens = maxTokens - usedTokens
+  const usedTokens = isUnlimited
+    ? Math.ceil(sessionText.length / 4)
+    : Math.min(maxTokens, Math.ceil(sessionText.length / 4))
+  const remainingTokens = isUnlimited ? 999999 : Math.max(0, maxTokens - usedTokens)
   const tokenLocale = language === "id" ? "id-ID" : "en-US"
 
   const notify = (message: string) => {
     setToast(message)
     window.setTimeout(() => setToast(""), 2300)
+  }
+
+  const handleToneChange = (newTone: ToneOption) => {
+    setSelectedTone(newTone)
+    try {
+      localStorage.setItem("pardalani_tone", newTone)
+    } catch {}
+    if (newTone !== "kustom") {
+      const preset = tonePresets[newTone]
+      setTemperature(preset.temp)
+      setSystemPrompts({
+        id: preset.promptId,
+        en: preset.promptEn,
+      })
+    }
+    notify(
+      language === "id"
+        ? `Gaya respon diubah: ${tonePresets[newTone].nameId.split(" (")[0]}`
+        : `Tone updated: ${tonePresets[newTone].nameEn.split(" (")[0]}`,
+    )
+  }
+
+  const handleProcessUpgrade = () => {
+    setIsActivatingPlan(true)
+    window.setTimeout(() => {
+      setIsActivatingPlan(false)
+      setUserTier(selectedPlan)
+      try {
+        localStorage.setItem("pardalani_user_tier", selectedPlan)
+      } catch {}
+      setShowPremiumModal(false)
+      if (selectedPlan === "basic") {
+        notify(
+          language === "id"
+            ? "Paket diubah ke Kurir Basic"
+            : "Switched to Basic Plan",
+        )
+      } else {
+        notify(
+          language === "id"
+            ? `Selamat! Paket Pardalani ${selectedPlan.toUpperCase()} berhasil aktif 🎉`
+            : `Congratulations! Pardalani ${selectedPlan.toUpperCase()} is active 🎉`,
+        )
+      }
+    }, 850)
   }
 
   const checkBackendHealth = async (url = backendUrl) => {
@@ -3939,7 +4275,55 @@ function App() {
                             </strong>
                           </div>
                         )}
+                        <div>
+                          <span>
+                            {language === "id"
+                              ? "Paket Keanggotaan"
+                              : "Membership Plan"}
+                          </span>
+                          <strong
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              color:
+                                userTier === "pro"
+                                  ? "#8b5cf6"
+                                  : userTier === "plus"
+                                    ? "#10b981"
+                                    : "inherit",
+                            }}
+                          >
+                            <Icon
+                              name={userTier === "basic" ? "user" : "crown"}
+                              size={14}
+                            />
+                            {TIER_DETAILS[userTier].name}
+                          </strong>
+                        </div>
                       </div>
+                      <button
+                        type="button"
+                        className="upgrade-btn-banner-inline"
+                        onClick={() => {
+                          setSelectedPlan(userTier === "basic" ? "plus" : userTier)
+                          setShowPremiumModal(true)
+                        }}
+                      >
+                        <div className="upgrade-inline-text">
+                          <strong>
+                            {userTier === "basic"
+                              ? "⚡ Upgrade ke Pardalani Plus / Pro"
+                              : `👑 Kelola ${TIER_DETAILS[userTier].name}`}
+                          </strong>
+                          <small>
+                            {userTier === "basic"
+                              ? "Buka kapasitas AI tanpa batas & rute 35-50+ titik"
+                              : "Lihat status masa aktif & detail paket"}
+                          </small>
+                        </div>
+                        <Icon name="chevron" size={14} />
+                      </button>
                       <button
                         type="button"
                         className="outline-button"
@@ -4104,375 +4488,234 @@ function App() {
                           ? "Kapasitas Percakapan Aktif"
                           : "Active Chat Capacity"}
                       </span>
+                      <span className={`user-tier-badge tier-${userTier}`}>
+                        {userTier === "pro"
+                          ? "🚀 PRO ARMADA"
+                          : userTier === "plus"
+                            ? "⭐ PLUS UNLIMITED"
+                            : "BASIC"}
+                      </span>
                     </div>
                     <output>
-                      <strong>
-                        {remainingTokens.toLocaleString(tokenLocale)}
-                      </strong>
-                      <span>
-                        {" "}
-                        / {maxTokens.toLocaleString(tokenLocale)}{" "}
-                        {language === "id" ? "poin pesan" : "chat points"}
-                      </span>
+                      {isUnlimited ? (
+                        <>
+                          <strong style={{ color: "var(--accent-strong, #10b981)" }}>
+                            Unlimited
+                          </strong>
+                          <span>
+                            {" "}
+                            / {language === "id" ? "Tanpa Batas Poin" : "Unlimited Points"}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <strong>
+                            {remainingTokens.toLocaleString(tokenLocale)}
+                          </strong>
+                          <span>
+                            {" "}
+                            / {maxTokens.toLocaleString(tokenLocale)}{" "}
+                            {language === "id" ? "poin pesan" : "chat points"}
+                          </span>
+                        </>
+                      )}
                     </output>
-                    <progress value={remainingTokens} max={maxTokens}>
-                      {remainingTokens} / {maxTokens}
+                    <progress
+                      value={isUnlimited ? 1 : remainingTokens}
+                      max={isUnlimited ? 1 : maxTokens}
+                    >
+                      {isUnlimited ? "Unlimited" : `${remainingTokens} / ${maxTokens}`}
                     </progress>
                     <p>
-                      {language === "id"
-                        ? `${usedTokens.toLocaleString(tokenLocale)} poin telah terpakai untuk bantuan rute & pengantaran hari ini.`
-                        : `${usedTokens.toLocaleString(tokenLocale)} points used for route & delivery assistance today.`}
+                      {isUnlimited
+                        ? language === "id"
+                          ? `Paket ${TIER_DETAILS[userTier].name} aktif. Optimalisasi rute, draf WhatsApp, dan dikte suara tanpa batas harian.`
+                          : `${TIER_DETAILS[userTier].name} active. Unlimited routes, WhatsApp drafts, and voice dictation.`
+                        : language === "id"
+                          ? `${usedTokens.toLocaleString(tokenLocale)} poin telah terpakai untuk bantuan rute & pengantaran hari ini.`
+                          : `${usedTokens.toLocaleString(tokenLocale)} points used for route & delivery assistance today.`}
                     </p>
+
+                    {/* Upgrade / Manage Subscription Banner */}
+                    <div className="token-upgrade-banner">
+                      <div className="upgrade-banner-info">
+                        <strong>
+                          {isUnlimited
+                            ? language === "id"
+                              ? `Langganan Aktif: ${TIER_DETAILS[userTier].name}`
+                              : `Active Plan: ${TIER_DETAILS[userTier].name}`
+                            : language === "id"
+                              ? "Butuh Rute & Kuota Lebih Banyak?"
+                              : "Need More Delivery Stops?"}
+                        </strong>
+                        <small>
+                          {isUnlimited
+                            ? language === "id"
+                              ? "Nikmati rute banyak tanpa batasan kuota pesan & server prioritas"
+                              : "Enjoy unlimited routes, zero chat quotas, and priority dispatch"
+                            : language === "id"
+                              ? "Upgrade ke Plus / Pro untuk rute 35-50+ titik & AI tanpa batas"
+                              : "Upgrade to Plus / Pro for 35-50+ stops and unlimited AI"}
+                        </small>
+                      </div>
+                      <button
+                        type="button"
+                        className="upgrade-btn-cta"
+                        onClick={() => {
+                          setSelectedPlan(userTier === "basic" ? "plus" : userTier)
+                          setShowPremiumModal(true)
+                        }}
+                      >
+                        {isUnlimited ? (
+                          <>
+                            <Icon name="crown" size={15} />
+                            <span>
+                              {language === "id"
+                                ? "Kelola Langganan"
+                                : "Manage Subscription"}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="upgrade-bolt">⚡</span>
+                            <span>
+                              {language === "id"
+                                ? "Upgrade ke Pro / Plus"
+                                : "Upgrade to Pro / Plus"}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Status Sambungan Layanan */}
-                  <div
-                    style={{
-                      padding: "14px 16px",
-                      borderRadius: "16px",
-                      border: "1px solid var(--border)",
-                      background: "var(--surface)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                  {/* Pilihan Tone Dropdown */}
+                  <div className="tone-selector-container">
+                    <div className="tone-selector-header">
+                      <label htmlFor="tone-select" className="tone-label">
+                        <Icon name="sliders" size={17} />
+                        <span>
+                          {language === "id"
+                            ? "Pilihan Tone & Gaya Respon Asisten"
+                            : "Assistant Tone & Response Style"}
+                        </span>
+                      </label>
                       <span
+                        className="tone-badge-pill"
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          fontWeight: "700",
-                          fontSize: "13px",
+                          background: `${tonePresets[selectedTone].badgeColor}22`,
+                          color: tonePresets[selectedTone].badgeColor,
+                          border: `1px solid ${tonePresets[selectedTone].badgeColor}55`,
                         }}
                       >
-                        <Icon name="shield" size={16} />
-                        {language === "id"
-                          ? "Status Sambungan Layanan"
-                          : "Service Connection Status"}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: "700",
-                          padding: "3px 9px",
-                          borderRadius: "999px",
-                          background:
-                            backendStatus === "connected"
-                              ? "rgba(16, 185, 129, 0.15)"
-                              : "rgba(245, 158, 11, 0.15)",
-                          color:
-                            backendStatus === "connected"
-                              ? "#10b981"
-                              : "#f59e0b",
-                        }}
-                      >
-                        {backendStatus === "connected"
-                          ? language === "id"
-                            ? "● Terhubung Pusat"
-                            : "● Connected"
-                          : backendStatus === "checking"
-                            ? language === "id"
-                              ? "Memeriksa..."
-                              : "Checking..."
-                            : language === "id"
-                              ? "● Siaga Mandiri"
-                              : "● Standby"}
+                        {tonePresets[selectedTone].badge}
                       </span>
                     </div>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "12px",
-                        color: "var(--muted)",
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {backendStatus === "connected"
-                        ? language === "id"
-                          ? "Sistem terhubung penuh ke server rute & optimalisasi pengantaran Pardalani."
-                          : "Fully connected to the Pardalani route optimization server."
-                        : language === "id"
-                          ? "Mode mandiri aktif. Asisten tetap siap membantu rute, draf WhatsApp, dan tips paket."
-                          : "Local mode active. Assistant is ready to help with routes, WhatsApp drafts, and tips."}
-                    </p>
 
-                    <button
-                      type="button"
-                      onClick={() => setShowAdvancedServer(!showAdvancedServer)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 0 0",
-                        border: "0",
-                        borderTop: "1px dashed var(--border)",
-                        background: "transparent",
-                        color: "var(--muted)",
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <span>
-                        {language === "id"
-                          ? "Opsi Jaringan Khusus"
-                          : "Advanced Network Options"}
-                      </span>
+                    <div className="tone-dropdown-wrap">
+                      <select
+                        id="tone-select"
+                        className="tone-dropdown-select"
+                        value={selectedTone}
+                        onChange={(e) =>
+                          handleToneChange(e.target.value as ToneOption)
+                        }
+                      >
+                        <option value="ringkas">
+                          ⚡ Ringkas & Cepat (Langsung ke Inti Rute)
+                        </option>
+                        <option value="santai">
+                          ☕ Santai & Akrab (Rekan Sesama Kurir)
+                        </option>
+                        <option value="formal">
+                          👔 Formal & Sopan (Standar Pelanggan / CS)
+                        </option>
+                        <option value="taktis">
+                          🛡️ Instruksi Taktis (Siaga Hambatan & Cuaca)
+                        </option>
+                        <option value="kustom">
+                          ✏️ Kustom Mandiri (Atur Instruksi Sendiri)
+                        </option>
+                      </select>
                       <Icon
                         name="chevron"
-                        size={14}
-                        style={{
-                          transform: showAdvancedServer
-                            ? "rotate(180deg)"
-                            : "none",
-                          transition: "transform 0.2s ease",
-                        }}
+                        size={16}
+                        className="dropdown-chevron-icon"
                       />
-                    </button>
+                    </div>
 
-                    {showAdvancedServer && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                          paddingTop: "4px",
-                        }}
-                      >
-                        <div style={{ display: "flex", gap: "8px" }}>
-                          <input
-                            type="url"
-                            value={backendUrl}
-                            onChange={(event) => {
-                              setBackendUrl(event.target.value)
-                              try {
-                                localStorage.setItem(
-                                  "backend_url",
-                                  event.target.value,
-                                )
-                              } catch {}
-                            }}
-                            placeholder="http://localhost:8080"
-                            style={{
-                              flex: 1,
-                              padding: "8px 12px",
-                              borderRadius: "10px",
-                              border: "1px solid var(--border)",
-                              background: "var(--background)",
-                              color: "var(--foreground)",
-                              fontSize: "12px",
-                            }}
-                          />
+                    {/* Tone Preview Card */}
+                    <div className="tone-desc-card">
+                      <p className="tone-desc-text">
+                        {language === "id"
+                          ? tonePresets[selectedTone].descId
+                          : tonePresets[selectedTone].descEn}
+                      </p>
+                      <div className="tone-meta-row">
+                        <small>
+                          {language === "id" ? "Suhu respon:" : "Temperature:"}{" "}
+                          <b>{temperature.toFixed(1)}</b>
+                        </small>
+                        {selectedTone !== "kustom" && (
                           <button
                             type="button"
-                            className="secondary-button"
-                            style={{
-                              padding: "0 12px",
-                              whiteSpace: "nowrap",
-                              fontSize: "12px",
-                            }}
+                            className="tone-edit-btn"
                             onClick={() => {
-                              checkBackendHealth(backendUrl)
-                              notify(
-                                language === "id"
-                                  ? "Memeriksa sambungan server..."
-                                  : "Checking server connection...",
-                              )
+                              setSelectedTone("kustom")
+                              try {
+                                localStorage.setItem("pardalani_tone", "kustom")
+                              } catch {}
                             }}
                           >
-                            <Icon name="refresh" size={14} />
-                            {language === "id" ? "Uji Sambungan" : "Test"}
+                            <Icon name="edit" size={12} />
+                            <span>
+                              {language === "id"
+                                ? "Ubah jadi kustom"
+                                : "Customize"}
+                            </span>
                           </button>
-                        </div>
-                        <div
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Custom textarea when kustom tone selected */}
+                    {selectedTone === "kustom" && (
+                      <label className="field" style={{ marginTop: "14px" }}>
+                        <span>
+                          <Icon name="edit" size={16} />
+                          {language === "id"
+                            ? "Instruksi Khusus Mandiri"
+                            : "Custom Prompt Instructions"}
+                        </span>
+                        <textarea
+                          rows={3}
+                          value={systemPrompts[language]}
+                          placeholder={
+                            language === "id"
+                              ? "Contoh: Jawab dengan kalimat pendek, prioritaskan keselamatan berkendara..."
+                              : "Example: Keep answers concise, prioritize road safety..."
+                          }
+                          onChange={(event) =>
+                            setSystemPrompts({
+                              ...systemPrompts,
+                              [language]: event.target.value,
+                            })
+                          }
+                        />
+                        <small
                           style={{
-                            display: "flex",
-                            gap: "6px",
-                            flexWrap: "wrap",
+                            color: "var(--muted)",
+                            fontSize: "10.5px",
+                            marginTop: "3px",
                           }}
                         >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const url = "http://10.0.2.2:8080"
-                              setBackendUrl(url)
-                              try {
-                                localStorage.setItem("backend_url", url)
-                              } catch {}
-                              checkBackendHealth(url)
-                              notify(
-                                language === "id"
-                                  ? "Preset Emulator diaktifkan"
-                                  : "Emulator preset active",
-                              )
-                            }}
-                            style={{
-                              fontSize: "10px",
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              border: "1px solid var(--border)",
-                              background:
-                                backendUrl === "http://10.0.2.2:8080"
-                                  ? "var(--primary-subtle)"
-                                  : "var(--background)",
-                              color:
-                                backendUrl === "http://10.0.2.2:8080"
-                                  ? "var(--primary)"
-                                  : "inherit",
-                              fontWeight:
-                                backendUrl === "http://10.0.2.2:8080"
-                                  ? "600"
-                                  : "400",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {language === "id"
-                              ? "Jaringan Emulator"
-                              : "Emulator Network"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const url = "http://localhost:8080"
-                              setBackendUrl(url)
-                              try {
-                                localStorage.setItem("backend_url", url)
-                              } catch {}
-                              checkBackendHealth(url)
-                              notify(
-                                language === "id"
-                                  ? "Preset Komputer Lokal diaktifkan"
-                                  : "Local PC preset active",
-                              )
-                            }}
-                            style={{
-                              fontSize: "10px",
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              border: "1px solid var(--border)",
-                              background:
-                                backendUrl === "http://localhost:8080"
-                                  ? "var(--primary-subtle)"
-                                  : "var(--background)",
-                              color:
-                                backendUrl === "http://localhost:8080"
-                                  ? "var(--primary)"
-                                  : "inherit",
-                              fontWeight:
-                                backendUrl === "http://localhost:8080"
-                                  ? "600"
-                                  : "400",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {language === "id"
-                              ? "Komputer Lokal"
-                              : "Local PC"}
-                          </button>
-                        </div>
-                      </div>
+                          {language === "id"
+                            ? "Instruksi ini akan langsung dipatuhi oleh asisten saat menjawab."
+                            : "The assistant strictly adheres to these customized rules."}
+                        </small>
+                      </label>
                     )}
                   </div>
-
-                  {/* Gaya Respon Asisten */}
-                  <label className="field">
-                    <span>
-                      <Icon name="sliders" size={17} />
-                      {t.temperature}
-                      <output
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: "700",
-                          padding: "2px 8px",
-                          borderRadius: "8px",
-                          background: "var(--primary-subtle)",
-                          color: "var(--primary)",
-                        }}
-                      >
-                        {temperature <= 0.4
-                          ? language === "id"
-                            ? "Ringkas & Lugas"
-                            : "Concise & Direct"
-                          : temperature <= 0.9
-                            ? language === "id"
-                              ? "Seimbang & Santun"
-                              : "Balanced & Polite"
-                            : language === "id"
-                              ? "Ramah & Terperinci"
-                              : "Detailed & Friendly"}
-                      </output>
-                    </span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={temperature}
-                      onChange={(event) =>
-                        setTemperature(Number(event.target.value))
-                      }
-                    />
-                    <small
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginTop: "2px",
-                      }}
-                    >
-                      <span>
-                        {language === "id"
-                          ? "Langsung ke inti (fokus jalan)"
-                          : "Direct to the point"}
-                      </span>
-                      <b>
-                        {language === "id"
-                          ? "Penjelasan santai & ramah"
-                          : "Friendly & conversational"}
-                      </b>
-                    </small>
-                  </label>
-
-                  {/* Panduan Jawaban Asisten */}
-                  <label className="field">
-                    <span>
-                      <Icon name="edit" size={17} />
-                      {t.prompt}
-                    </span>
-                    <textarea
-                      rows={3}
-                      value={systemPrompts[language]}
-                      placeholder={
-                        language === "id"
-                          ? "Contoh: Jawab dengan kalimat pendek, prioritaskan keselamatan berkendara..."
-                          : "Example: Keep answers concise, prioritize road safety..."
-                      }
-                      onChange={(event) =>
-                        setSystemPrompts({
-                          ...systemPrompts,
-                          [language]: event.target.value,
-                        })
-                      }
-                    />
-                    <small
-                      style={{
-                        color: "var(--muted)",
-                        fontSize: "10.5px",
-                        marginTop: "2px",
-                      }}
-                    >
-                      {language === "id"
-                        ? "Catatan khusus ini menjadi acuan asisten saat memberikan saran rute & paket."
-                        : "These notes guide how the assistant responds to your delivery queries."}
-                    </small>
-                  </label>
 
                   <button
                     type="button"
@@ -5635,6 +5878,285 @@ function App() {
               </div>
             )}
           </section>
+        </div>
+      )}
+
+      {showPremiumModal && (
+        <div
+          className="premium-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pardalani Premium Upgrade"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isActivatingPlan) {
+              setShowPremiumModal(false)
+            }
+          }}
+        >
+          <div className="premium-modal">
+            {/* Header */}
+            <div className="premium-modal-header">
+              <div className="premium-title-wrap">
+                <span className="premium-icon-badge">
+                  <Icon name="crown" size={18} />
+                </span>
+                <div>
+                  <h2>
+                    {language === "id"
+                      ? "Pardalani Premium"
+                      : "Pardalani Premium"}
+                  </h2>
+                  <p>
+                    {language === "id"
+                      ? "Solusi rute tanpa batas & asistensi AI tercepat untuk kurir"
+                      : "Unlimited routes & fastest AI delivery copilot"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="premium-close-btn"
+                onClick={() => setShowPremiumModal(false)}
+                disabled={isActivatingPlan}
+                aria-label="Tutup modal upgrade"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            </div>
+
+            <div className="premium-modal-body">
+              {/* Section 1: 3 Mode / Tier Keanggotaan */}
+              <div className="premium-section">
+                <div className="premium-section-title">
+                  <span>1</span>
+                  <h3>
+                    {language === "id"
+                      ? "Pilih Paket Keanggotaan"
+                      : "Choose Membership Mode"}
+                  </h3>
+                </div>
+
+                <div className="premium-plans-grid">
+                  {(["basic", "plus", "pro"] as UserTier[]).map((tierKey) => {
+                    const isSelected = selectedPlan === tierKey
+                    const isCurrent = userTier === tierKey
+                    const plan = TIER_DETAILS[tierKey]
+                    return (
+                      <div
+                        key={tierKey}
+                        className={`premium-plan-card ${isSelected ? "selected" : ""} tier-${tierKey}`}
+                        onClick={() => setSelectedPlan(tierKey)}
+                      >
+                        <div className="plan-card-top">
+                          <div className="plan-name-row">
+                            <span className="plan-name">{plan.name}</span>
+                            {isCurrent && (
+                              <span className="plan-current-tag">
+                                {language === "id" ? "Aktif" : "Active"}
+                              </span>
+                            )}
+                          </div>
+                          <span
+                            className="plan-badge-pill"
+                            style={{
+                              background: `${plan.badgeColor}22`,
+                              color: plan.badgeColor,
+                            }}
+                          >
+                            {plan.badge}
+                          </span>
+                        </div>
+
+                        <div className="plan-card-metrics">
+                          <div className="plan-metric">
+                            <Icon name="route" size={14} />
+                            <strong>{plan.stopsLimit}</strong>
+                          </div>
+                          <div className="plan-metric">
+                            <Icon name="zap" size={14} />
+                            <strong>{plan.aiLimit}</strong>
+                          </div>
+                        </div>
+
+                        <ul className="plan-features-list">
+                          {plan.features.map((feat, idx) => (
+                            <li key={idx}>
+                              <Icon name="check" size={12} />
+                              <span>{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="plan-radio-row">
+                          <div className={`plan-radio ${isSelected ? "checked" : ""}`}>
+                            {isSelected && <span className="plan-radio-dot" />}
+                          </div>
+                          <small>
+                            {isSelected
+                              ? language === "id"
+                                ? "Dipilih"
+                                : "Selected"
+                              : language === "id"
+                                ? "Pilih Opsi Ini"
+                                : "Select"}
+                          </small>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Section 2: Pilihan Periode & Promo Bundle (Hanya jika Plus / Pro) */}
+              {selectedPlan !== "basic" && (
+                <div className="premium-section">
+                  <div className="premium-section-title">
+                    <span>2</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <h3>
+                        {language === "id"
+                          ? "Pilih Periode & Promo Hemat"
+                          : "Bundle & Promo Period"}
+                      </h3>
+                      <span className="promo-flash-badge">
+                        <Icon name="tag" size={11} />
+                        Promo Kurir
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="premium-bundle-grid">
+                    {BUNDLE_OPTIONS.map((bundle) => {
+                      const isSelected = selectedBundle === bundle.id
+                      const priceFormatted =
+                        selectedPlan === "plus"
+                          ? bundle.plusFormatted
+                          : bundle.proFormatted
+                      return (
+                        <div
+                          key={bundle.id}
+                          className={`bundle-pill ${isSelected ? "selected" : ""}`}
+                          onClick={() => setSelectedBundle(bundle.id)}
+                        >
+                          <div className="bundle-pill-top">
+                            <span className="bundle-tag">{bundle.tag}</span>
+                            <strong className="bundle-price">{priceFormatted}</strong>
+                          </div>
+                          <div className="bundle-pill-bottom">
+                            <span className="bundle-name">{bundle.name}</span>
+                            <small className="bundle-savings">{bundle.savings}</small>
+                          </div>
+                          {isSelected && (
+                            <span className="bundle-selected-check">
+                              <Icon name="check" size={12} />
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Section 3: Metode Pembayaran (Kurir-Friendly Indonesia) */}
+              {selectedPlan !== "basic" && (
+                <div className="premium-section">
+                  <div className="premium-section-title">
+                    <span>3</span>
+                    <h3>
+                      {language === "id"
+                        ? "Pilih Metode Pembayaran"
+                        : "Payment Method"}
+                    </h3>
+                  </div>
+
+                  <div className="premium-payment-grid">
+                    {PAYMENT_METHODS.map((method) => {
+                      const isSelected = selectedPayment === method.id
+                      return (
+                        <div
+                          key={method.id}
+                          className={`payment-method-card ${isSelected ? "selected" : ""}`}
+                          onClick={() => setSelectedPayment(method.id)}
+                        >
+                          <div className="payment-method-radio">
+                            <div className={`plan-radio ${isSelected ? "checked" : ""}`}>
+                              {isSelected && <span className="plan-radio-dot" />}
+                            </div>
+                          </div>
+                          <div className="payment-method-info">
+                            <div className="payment-method-header">
+                              <strong>{method.title}</strong>
+                              <span className="payment-badge">{method.badge}</span>
+                            </div>
+                            <p>{method.subtitle}</p>
+                            <small className="payment-providers">
+                              {method.providers}
+                            </small>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sticky Modal Footer / Checkout Bar */}
+            <div className="premium-modal-footer">
+              <div className="premium-summary-wrap">
+                <div className="summary-left">
+                  <span>{language === "id" ? "Total Investasi:" : "Total Amount:"}</span>
+                  <strong>
+                    {selectedPlan === "basic"
+                      ? "Rp 0 (Gratis)"
+                      : selectedPlan === "plus"
+                        ? BUNDLE_OPTIONS.find((b) => b.id === selectedBundle)?.plusFormatted
+                        : BUNDLE_OPTIONS.find((b) => b.id === selectedBundle)?.proFormatted}
+                  </strong>
+                  <small>
+                    {selectedPlan === "basic"
+                      ? "Paket Tanpa Biaya"
+                      : `${TIER_DETAILS[selectedPlan].name} · ${
+                          BUNDLE_OPTIONS.find((b) => b.id === selectedBundle)?.name
+                        }`}
+                  </small>
+                </div>
+
+                <button
+                  type="button"
+                  className="premium-submit-btn"
+                  onClick={handleProcessUpgrade}
+                  disabled={isActivatingPlan}
+                >
+                  {isActivatingPlan ? (
+                    <>
+                      <span className="payment-spinner" />
+                      <span>{language === "id" ? "Memproses..." : "Processing..."}</span>
+                    </>
+                  ) : selectedPlan === "basic" ? (
+                    <>
+                      <Icon name="check" size={16} />
+                      <span>{language === "id" ? "Gunakan Paket Basic" : "Use Basic Plan"}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="zap" size={16} />
+                      <span>
+                        {userTier === selectedPlan
+                          ? language === "id"
+                            ? "Perpanjang / Simpan Paket"
+                            : "Renew Subscription"
+                          : language === "id"
+                            ? `Aktifkan ${TIER_DETAILS[selectedPlan].name}`
+                            : `Activate ${TIER_DETAILS[selectedPlan].name}`}
+                      </span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
