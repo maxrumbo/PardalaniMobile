@@ -4677,7 +4677,7 @@ function App() {
                 ],
                 [
                   "route",
-                  language === "id" ? "Bagikan Lokasi (Maps)" : "Share Location (Maps)",
+                  language === "id" ? "Bagikan Lokasi" : "Share Location",
                   () => handleShareLocation(),
                 ],
               ].map(([icon, title, action]) => (
