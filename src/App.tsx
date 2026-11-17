@@ -3289,8 +3289,8 @@ function App() {
                       </h3>
                       <div className="wfc-img-frame">
                         <img
-                          src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80&fit=crop&crop=center"
-                          alt={language === "id" ? "Peta rute pengantaran" : "Delivery route map"}
+                          src="https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=600&q=80&fit=crop&crop=center"
+                          alt={language === "id" ? "Peta rute navigasi pengantaran" : "Delivery GPS route map"}
                           className="wfc-img"
                         />
                         <div className="wfc-img-overlay" />
@@ -3380,8 +3380,8 @@ function App() {
                       </h3>
                       <div className="wfc-img-frame">
                         <img
-                          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop&crop=center"
-                          alt={language === "id" ? "Kurir berkendara hands-free" : "Courier riding hands-free"}
+                          src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&q=80&fit=crop&crop=center"
+                          alt={language === "id" ? "Kurir berkendara di jalan hands-free" : "Courier riding on road hands-free"}
                           className="wfc-img"
                         />
                         <div className="wfc-img-overlay" />
