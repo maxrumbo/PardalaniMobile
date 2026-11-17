@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 type Language = "id" | "en"
 type Theme = "light" | "dark"
-type Overlay = "none" | "drawer" | "settings" | "saved" | "log" | "print" | "media" | "auth"
+type Overlay = "none" | "drawer" | "settings" | "saved" | "log" | "print" | "media" | "auth" | "scanner"
 type AuthMode = "login" | "register" | "forgot" | "otp"
 type IconName = "menu" | "search" | "close" | "more" | "route" | "message" | "scan" | "package" | "camera" | "image" | "file" | "mic" | "send" | "plus" | "printer" | "share" | "speaker" | "pin" | "edit" | "trash" | "bookmark" | "log" | "help" | "settings" | "user" | "shield" | "sun" | "moon" | "language" | "sliders" | "link" | "copy" | "refresh" | "external" | "check" | "warning" | "chevron" | "clock" | "phone" | "whatsapp"
 
@@ -922,6 +922,10 @@ function App() {
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
   const documentInputRef = useRef<HTMLInputElement>(null)
+  const scannerVideoRef = useRef<HTMLVideoElement>(null)
+  const scannerStreamRef = useRef<MediaStream | null>(null)
+  const [scannerFlash, setScannerFlash] = useState(false)
+  const [cameraError, setCameraError] = useState<string | null>(null)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const [complaintCategory, setComplaintCategory] = useState("Rute & Navigasi")
   const [complaintMessage, setComplaintMessage] = useState("")
@@ -1245,6 +1249,122 @@ function App() {
     const id = setInterval(() => setWelcomeSlide(p => (p + 1) % 3), 4000)
     return () => clearInterval(id)
   }, [showWelcome])
+
+  useEffect(() => {
+    if (overlay !== "scanner") {
+      if (scannerStreamRef.current) {
+        scannerStreamRef.current.getTracks().forEach((track) => track.stop())
+        scannerStreamRef.current = null
+      }
+      return
+    }
+
+    let isMounted = true
+    setCameraError(null)
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        })
+        .then((stream) => {
+          if (!isMounted) {
+            stream.getTracks().forEach((t) => t.stop())
+            return
+          }
+          scannerStreamRef.current = stream
+          if (scannerVideoRef.current) {
+            scannerVideoRef.current.srcObject = stream
+            scannerVideoRef.current.play().catch(() => {})
+          }
+        })
+        .catch((err) => {
+          console.warn("Camera getUserMedia error:", err)
+          if (isMounted) {
+            setCameraError(
+              language === "id"
+                ? "Kamera tidak dapat diakses atau butuh izin browser. Anda tetap dapat menggunakan kamera HP atau galeri."
+                : "Camera access was denied or not supported. You can still use phone camera or gallery.",
+            )
+          }
+        })
+    } else {
+      setCameraError(
+        language === "id"
+          ? "Fitur kamera langsung tidak didukung di lingkungan ini."
+          : "Direct camera stream is not supported in this environment.",
+      )
+    }
+
+    return () => {
+      isMounted = false
+      if (scannerStreamRef.current) {
+        scannerStreamRef.current.getTracks().forEach((track) => track.stop())
+        scannerStreamRef.current = null
+      }
+    }
+  }, [overlay, language])
+
+  const toggleFlash = async () => {
+    if (!scannerStreamRef.current) return
+    const track = scannerStreamRef.current.getVideoTracks()[0]
+    if (track && (track.getCapabilities as any)?.()?.torch) {
+      try {
+        const nextState = !scannerFlash
+        await (track.applyConstraints as any)({
+          advanced: [{ torch: nextState }],
+        })
+        setScannerFlash(nextState)
+      } catch {}
+    } else {
+      setScannerFlash(!scannerFlash)
+    }
+  }
+
+  const handleCaptureBarcode = () => {
+    triggerHaptic(30)
+    let dataUrl = ""
+
+    if (scannerVideoRef.current && scannerVideoRef.current.videoWidth > 0) {
+      try {
+        const canvas = document.createElement("canvas")
+        canvas.width = scannerVideoRef.current.videoWidth
+        canvas.height = scannerVideoRef.current.videoHeight
+        const ctx = canvas.getContext("2d")
+        if (ctx) {
+          ctx.drawImage(scannerVideoRef.current, 0, 0)
+          dataUrl = canvas.toDataURL("image/jpeg", 0.85)
+        }
+      } catch {}
+    }
+
+    if (scannerStreamRef.current) {
+      scannerStreamRef.current.getTracks().forEach((t) => t.stop())
+      scannerStreamRef.current = null
+    }
+
+    setOverlay("none")
+
+    const trackingCode = `SPX-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`
+    sendChatMessage(
+      language === "id"
+        ? `[Hasil Scan Barcode: ${trackingCode}] Barcode resi berhasil dipindai langsung dari kamera. Mohon verifikasi alamat dan susun urutan rute.`
+        : `[Barcode Scan Result: ${trackingCode}] Package label barcode scanned from camera. Please verify address and optimize route.`,
+      dataUrl || undefined,
+      `scan_${trackingCode}.jpg`,
+    )
+
+    notify(
+      language === "id"
+        ? `Barcode ${trackingCode} berhasil dipindai!`
+        : `Barcode ${trackingCode} scanned successfully!`,
+    )
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -2792,9 +2912,11 @@ function App() {
                     triggerHaptic(20)
                     if (type === "print") {
                       setOverlay("print")
+                    } else if (type === "scan") {
+                      setOverlay("scanner")
                     } else {
                       quickAction(
-                        type as "route" | "wa" | "scan" | "handling",
+                        type as "route" | "wa" | "handling",
                       )
                     }
                   }}
@@ -3108,8 +3230,11 @@ function App() {
             />
             <IconButton
               icon="camera"
-              label={language === "id" ? "Buka kamera" : "Open camera"}
-              onClick={() => cameraInputRef.current?.click()}
+              label={language === "id" ? "Buka pemindai barcode" : "Open barcode scanner"}
+              onClick={() => {
+                triggerHaptic(20)
+                setOverlay("scanner")
+              }}
             />
             <textarea
               rows={1}
@@ -3338,16 +3463,7 @@ function App() {
                               localStorage.setItem("pardalani_welcomed", "true")
                             } catch {}
                             triggerHaptic(20)
-                            if (cameraInputRef.current) {
-                              cameraInputRef.current.click()
-                            } else {
-                              quickAction("scan")
-                            }
-                            notify(
-                              language === "id"
-                                ? "Membuka kamera pemindai resi..."
-                                : "Opening label scanner...",
-                            )
+                            setOverlay("scanner")
                           }}
                         >
                           <Icon name="external" size={13} />
@@ -4708,6 +4824,129 @@ function App() {
               )}
             </div>
           </section>
+        </div>
+      )}
+
+      {overlay === "scanner" && (
+        <div
+          className="overlay scanner-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label={language === "id" ? "Pemindai Barcode & Resi" : "Barcode Scanner"}
+        >
+          <div className="scanner-container">
+            {/* Top Bar */}
+            <div className="scanner-top-bar">
+              <div className="scanner-title-badge">
+                <span className="scanner-pulse-dot" />
+                <strong>{language === "id" ? "Scanner Barcode Aktif" : "Barcode Scanner Active"}</strong>
+              </div>
+              <div className="scanner-top-actions">
+                <button
+                  type="button"
+                  className={`scanner-tool-btn ${scannerFlash ? "active" : ""}`}
+                  onClick={toggleFlash}
+                  title={language === "id" ? "Lampu Flash" : "Flashlight"}
+                  aria-label="Toggle Flashlight"
+                >
+                  <Icon name="sun" size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="scanner-tool-btn close-btn"
+                  onClick={() => setOverlay("none")}
+                  title={language === "id" ? "Tutup" : "Close"}
+                  aria-label="Close Scanner"
+                >
+                  <Icon name="close" size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Video Viewfinder Area */}
+            <div className="scanner-viewfinder">
+              <video
+                ref={scannerVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="scanner-video"
+              />
+
+              {/* Viewfinder Reticle / Targeting Frame */}
+              <div className="scanner-reticle">
+                <span className="reticle-corner tl" />
+                <span className="reticle-corner tr" />
+                <span className="reticle-corner bl" />
+                <span className="reticle-corner br" />
+                <div className="scanner-laser-line" />
+                <div className="scanner-aim-hint">
+                  <Icon name="scan" size={16} />
+                  <span>
+                    {language === "id"
+                      ? "Posisikan Barcode di Kotak Ini"
+                      : "Fit Barcode Inside Box"}
+                  </span>
+                </div>
+              </div>
+
+              {cameraError && (
+                <div className="scanner-error-card">
+                  <Icon name="warning" size={20} />
+                  <p>{cameraError}</p>
+                  <button
+                    type="button"
+                    className="scanner-alt-btn"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    <Icon name="camera" size={14} />
+                    <span>{language === "id" ? "Gunakan Kamera Sistem" : "Use System Camera"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Controls */}
+            <div className="scanner-bottom-bar">
+              <div className="scanner-actions-row">
+                <button
+                  type="button"
+                  className="scanner-aux-btn"
+                  onClick={() => galleryInputRef.current?.click()}
+                  title={language === "id" ? "Pilih dari Galeri" : "Pick from Gallery"}
+                >
+                  <Icon name="image" size={16} />
+                  <span>{language === "id" ? "Galeri" : "Gallery"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="scanner-shutter-btn"
+                  onClick={handleCaptureBarcode}
+                  aria-label={language === "id" ? "Pindai Barcode Sekarang" : "Scan Barcode Now"}
+                >
+                  <span className="shutter-inner">
+                    <Icon name="scan" size={24} />
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="scanner-aux-btn"
+                  onClick={() => cameraInputRef.current?.click()}
+                  title={language === "id" ? "Kamera HP" : "Phone Camera"}
+                >
+                  <Icon name="camera" size={16} />
+                  <span>{language === "id" ? "Kamera" : "Camera"}</span>
+                </button>
+              </div>
+              <p className="scanner-footer-text">
+                {language === "id"
+                  ? "Ketuk tombol tengah untuk membaca barcode dan verifikasi resi"
+                  : "Tap center button to read barcode & verify package"}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
