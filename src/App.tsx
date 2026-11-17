@@ -469,11 +469,21 @@ const iconPaths: Record<IconName, React.ReactNode> = {
   ),
 }
 
-function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+function Icon({
+  name,
+  size = 20,
+  style,
+  className,
+}: {
+  name: IconName
+  size?: number
+  style?: React.CSSProperties
+  className?: string
+}) {
   return (
     <svg
       aria-hidden="true"
-      className="icon"
+      className={className ? `icon ${className}` : "icon"}
       viewBox="0 0 24 24"
       width={size}
       height={size}
@@ -482,6 +492,7 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
+      style={style}
     >
       {iconPaths[name]}
     </svg>
@@ -1735,6 +1746,15 @@ function App() {
     })
   }
 
+  const startNewChat = () => {
+    const newId = `session_${Date.now()}`
+    setActiveSessionId(newId)
+    setChatMessages([])
+    setComposer("")
+    setOverlay("none")
+    triggerHaptic(20)
+  }
+
   const selectSession = async (item: HistorySession) => {
     setActiveSessionId(String(item.id))
     setOverlay("none")
@@ -2140,6 +2160,25 @@ function App() {
     setChatMessages((prev) => [...prev, newUserMsg, newAiPlaceholder])
     setComposer("")
     setIsTyping(true)
+
+    if (activeSessionId !== "session_1") {
+      setHistory((prev) => {
+        const exists = prev.some((s) => String(s.id) === String(activeSessionId))
+        if (exists) return prev
+        const titleText = trimmed.length > 25 ? trimmed.slice(0, 25) + "..." : trimmed
+        const newSessionItem: HistorySession = {
+          id: activeSessionId,
+          title: titleText,
+          titleEn: titleText,
+          preview: trimmed,
+          previewEn: trimmed,
+          time: timeStr,
+          timeEn: timeStr,
+          group: "today",
+        }
+        return [newSessionItem, ...prev]
+      })
+    }
 
     try {
       const streamUrl = `${backendUrl}/api/chat/stream?prompt=${encodeURIComponent(
@@ -2670,11 +2709,31 @@ function App() {
             label={t.history}
             onClick={() => setOverlay("drawer")}
           />
-          <div className="brand-lockup">
+          <div
+            className="brand-lockup"
+            style={activeSessionId !== "session_1" ? { cursor: "pointer" } : undefined}
+            onClick={() => {
+              if (activeSessionId !== "session_1") {
+                setActiveSessionId("session_1")
+                setChatMessages([])
+              }
+            }}
+            title={activeSessionId !== "session_1" ? (language === "id" ? "Kembali ke Beranda" : "Back to Home") : undefined}
+          >
             <BrandMark />
             <div>
-              <strong>Pardalani</strong>
-              <span>Dongan Setia Kurir</span>
+              <strong>
+                {activeSessionId === "session_1"
+                  ? "Pardalani"
+                  : (history.find((s) => String(s.id) === String(activeSessionId))?.title || (language === "id" ? "Pesan Baru" : "New Chat"))}
+              </strong>
+              <span>
+                {activeSessionId === "session_1"
+                  ? "Dongan Setia Kurir"
+                  : language === "id"
+                    ? "Ruang Pesan Baru"
+                    : "New Chat Room"}
+              </span>
             </div>
           </div>
           <div className="header-actions">
@@ -2773,145 +2832,155 @@ function App() {
           </section>
 
           <section className="thread" aria-label="Chat">
-            <div className="date-rule">
-              <span>{t.today}, 09.14</span>
-            </div>
-            <div className="user-message">
-              Susun rute tercepat untuk 4 alamat ini. Dahulukan paket prioritas.
-            </div>
+            {activeSessionId === "session_1" ? (
+              <>
+                <div className="date-rule">
+                  <span>{t.today}, 09.14</span>
+                </div>
+                <div className="user-message">
+                  Susun rute tercepat untuk 4 alamat ini. Dahulukan paket prioritas.
+                </div>
 
-            <article
-              className={`assistant-card ${regenerating ? "loading" : ""}`}
-            >
-              <div className="assistant-head">
-                <BrandMark size={30} />
-                <div>
-                  <strong>Pardalani</strong>
-                  <span>Kopilot Rute AI</span>
-                </div>
-                <span className="ai-badge">AI</span>
-              </div>
-              {regenerating ? (
-                <div
-                  className="skeleton-stack"
-                  aria-label="Regenerating response"
+                <article
+                  className={`assistant-card ${regenerating ? "loading" : ""}`}
                 >
-                  <span />
-                  <span />
-                  <span />
-                </div>
-              ) : (
-                <>
-                  <h2>Rute siap dijalankan</h2>
-                  <p>4 perhentian telah dioptimalkan untuk efisiensi waktu dan konsumsi bahan bakar.</p>
-                  <ul className="insight-list">
-                    <li>
-                      <Icon name="check" size={17} />
-                      Paket prioritas diantar lebih dulu.
-                    </li>
-                    <li>
-                      <Icon name="package" size={17} />
-                      Satu paket pecah belah perlu posisi tegak.
-                    </li>
-                    <li>
-                      <Icon name="warning" size={17} />
-                      Hindari Jl. Sudirman hingga pukul 10.30 karena pasar tumpah.
-                    </li>
-                  </ul>
-                  <div
-                    className="route-table"
-                    role="table"
-                    aria-label="Route steps"
-                  >
-                    <div className="route-header" role="row">
-                      <span>Urutan</span>
-                      <span>Tujuan</span>
-                      <span>ETA</span>
-                    </div>
-                    {routeSteps.map((step) => (
-                      <div className="route-row" role="row" key={step.no}>
-                        <span className="route-number">{step.no}</span>
-                        <span className="route-address">
-                          <strong>{step.address}</strong>
-                          <small>{step.status}</small>
-                        </span>
-                        <time>{step.eta}</time>
-                      </div>
-                    ))}
-                  </div>
-                  <div
-                    className="next-stop-card"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => {
-                      window.open(
-                        "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
-                        "_blank",
-                      )
-                    }}
-                  >
-                    <span className="next-icon">
-                      <Icon name="route" />
-                    </span>
+                  <div className="assistant-head">
+                    <BrandMark size={30} />
                     <div>
-                      <small>Tujuan berikutnya</small>
-                      <strong>Jl. Sei Batang Hari 12</strong>
-                      <span>1,8 km · 8 mnt</span>
+                      <strong>Pardalani</strong>
+                      <span>Kopilot Rute AI</span>
                     </div>
-                    <Icon name="chevron" />
+                    <span className="ai-badge">AI</span>
                   </div>
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={() => {
-                      triggerHaptic(25)
-                      notify(
-                        language === "id"
-                          ? "Membuka rute navigasi di Google Maps..."
-                          : "Opening route navigation in Google Maps...",
-                      )
-                      if (
-                        typeof window !== "undefined" &&
-                        (window as any).AndroidAction?.openMaps
-                      ) {
-                        ;(window as any).AndroidAction.openMaps(
-                          "Jl. Sei Batang Hari 12, Medan",
-                        )
-                      } else {
-                        window.open(
-                          "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
-                          "_blank",
-                        )
-                      }
-                    }}
-                  >
-                    <Icon name="route" />
-                    {t.startNav}
-                  </button>
-                  <div className="message-actions">
-                    <button
-                      type="button"
-                      className={speakingText === defaultRouteSpeech ? "speaking" : ""}
-                      onClick={listenToResponse}
+                  {regenerating ? (
+                    <div
+                      className="skeleton-stack"
+                      aria-label="Regenerating response"
                     >
-                      <Icon name="speaker" size={17} />
-                      {speakingText === defaultRouteSpeech
-                        ? language === "id"
-                          ? "Berhenti"
-                          : "Stop"
-                        : t.listen}
-                    </button>
-                    <button type="button" onClick={copyResponse}>
-                      <Icon name="copy" size={17} />
-                      {t.copy}
-                    </button>
-                    <button type="button" onClick={regenerate}>
-                      <Icon name="refresh" size={17} />
-                      {t.regenerate}
-                    </button>
-                  </div>
-                </>
-              )}
-            </article>
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  ) : (
+                    <>
+                      <h2>Rute siap dijalankan</h2>
+                      <p>4 perhentian telah dioptimalkan untuk efisiensi waktu dan konsumsi bahan bakar.</p>
+                      <ul className="insight-list">
+                        <li>
+                          <Icon name="check" size={17} />
+                          Paket prioritas diantar lebih dulu.
+                        </li>
+                        <li>
+                          <Icon name="package" size={17} />
+                          Satu paket pecah belah perlu posisi tegak.
+                        </li>
+                        <li>
+                          <Icon name="warning" size={17} />
+                          Hindari Jl. Sudirman hingga pukul 10.30 karena pasar tumpah.
+                        </li>
+                      </ul>
+                      <div
+                        className="route-table"
+                        role="table"
+                        aria-label="Route steps"
+                      >
+                        <div className="route-header" role="row">
+                          <span>Urutan</span>
+                          <span>Tujuan</span>
+                          <span>ETA</span>
+                        </div>
+                        {routeSteps.map((step) => (
+                          <div className="route-row" role="row" key={step.no}>
+                            <span className="route-number">{step.no}</span>
+                            <span className="route-address">
+                              <strong>{step.address}</strong>
+                              <small>{step.status}</small>
+                            </span>
+                            <time>{step.eta}</time>
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        className="next-stop-card"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          window.open(
+                            "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
+                            "_blank",
+                          )
+                        }}
+                      >
+                        <span className="next-icon">
+                          <Icon name="route" />
+                        </span>
+                        <div>
+                          <small>Tujuan berikutnya</small>
+                          <strong>Jl. Sei Batang Hari 12</strong>
+                          <span>1,8 km · 8 mnt</span>
+                        </div>
+                        <Icon name="chevron" />
+                      </div>
+                      <button
+                        type="button"
+                        className="primary-button"
+                        onClick={() => {
+                          triggerHaptic(25)
+                          notify(
+                            language === "id"
+                              ? "Membuka rute navigasi di Google Maps..."
+                              : "Opening route navigation in Google Maps...",
+                          )
+                          if (
+                            typeof window !== "undefined" &&
+                            (window as any).AndroidAction?.openMaps
+                          ) {
+                            ;(window as any).AndroidAction.openMaps(
+                              "Jl. Sei Batang Hari 12, Medan",
+                            )
+                          } else {
+                            window.open(
+                              "https://www.google.com/maps/search/?api=1&query=Jl.+Sei+Batang+Hari+12,+Medan",
+                              "_blank",
+                            )
+                          }
+                        }}
+                      >
+                        <Icon name="route" />
+                        {t.startNav}
+                      </button>
+                      <div className="message-actions">
+                        <button
+                          type="button"
+                          className={speakingText === defaultRouteSpeech ? "speaking" : ""}
+                          onClick={listenToResponse}
+                        >
+                          <Icon name="speaker" size={17} />
+                          {speakingText === defaultRouteSpeech
+                            ? language === "id"
+                              ? "Berhenti"
+                              : "Stop"
+                            : t.listen}
+                        </button>
+                        <button type="button" onClick={copyResponse}>
+                          <Icon name="copy" size={17} />
+                          {t.copy}
+                        </button>
+                        <button type="button" onClick={regenerate}>
+                          <Icon name="refresh" size={17} />
+                          {t.regenerate}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </article>
+              </>
+            ) : (
+              chatMessages.length > 0 && (
+                <div className="date-rule">
+                  <span>{t.today}</span>
+                </div>
+              )
+            )}
 
             {chatMessages.map((msg) =>
               msg.sender === "user" ? (
@@ -3565,6 +3634,14 @@ function App() {
               </button>
             </div>
             <div className="drawer-body">
+              <button
+                type="button"
+                className="new-chat-btn"
+                onClick={startNewChat}
+              >
+                <Icon name="plus" size={16} />
+                <span>{language === "id" ? "Pesan Baru" : "New Chat"}</span>
+              </button>
               <label className="search-field">
                 <Icon name="search" />
                 <input
@@ -4610,16 +4687,6 @@ function App() {
             </div>
             <div className="media-options">
               {[
-                [
-                  "camera",
-                  language === "id" ? "Kamera" : "Camera",
-                  () => cameraInputRef.current?.click(),
-                ],
-                [
-                  "image",
-                  language === "id" ? "Galeri" : "Gallery",
-                  () => galleryInputRef.current?.click(),
-                ],
                 [
                   "file",
                   language === "id" ? "File & Drive" : "Files & Drive",

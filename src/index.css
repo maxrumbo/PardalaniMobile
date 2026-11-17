@@ -184,6 +184,147 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .quick-card > .icon { color: var(--muted); }
 .quick-icon { width: 35px; height: 35px; border-radius: 11px; display: grid; place-items: center; background: var(--surface-2); color: var(--primary); }
 .thread { padding: 6px 14px 104px; }
+
+/* Empty Roomchat View */
+.empty-roomchat {
+  padding: 24px 16px 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fade 0.22s ease-out;
+}
+.empty-roomchat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 22px;
+}
+.empty-roomchat-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.empty-roomchat-hero .brand-mark {
+  margin-bottom: 14px;
+  filter: drop-shadow(0 6px 16px color-mix(in srgb, var(--primary) 22%, transparent));
+}
+.empty-roomchat-hero h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+}
+.empty-roomchat-hero p {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 300px;
+  margin: 0;
+}
+.empty-roomchat-prompts {
+  width: 100%;
+  text-align: left;
+}
+.prompts-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+.empty-prompts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.empty-prompt-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 36px 1fr 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.empty-prompt-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 38%, var(--border));
+  background: var(--surface-2);
+}
+.empty-prompt-card:active {
+  transform: scale(0.98);
+}
+.empty-prompt-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+}
+.empty-prompt-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.empty-prompt-text strong {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.empty-prompt-text small {
+  font-size: 9.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.empty-prompt-card .icon:last-child {
+  color: var(--subtle);
+}
+.empty-back-home {
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.empty-back-home:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.empty-back-home .icon {
+  transform: rotate(180deg);
+}
 .date-rule { display: flex; align-items: center; color: var(--subtle); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; margin: 7px 0 15px; }
 .date-rule::before, .date-rule::after { content: ''; height: 1px; background: var(--border); flex: 1; }
 .date-rule span { padding: 0 9px; }
@@ -264,22 +405,22 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(9, 10, 22, .6); backdrop-filter: blur(3px); display: flex; justify-content: center; animation: fade .18s ease; }
 .drawer { width: min(88%, 370px); height: 100%; margin-right: auto; background: var(--glass-strong); backdrop-filter: blur(28px) saturate(150%); position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); animation: slideIn .25s cubic-bezier(.2,.8,.2,1); }
 @media (min-width: 700px) { .drawer { margin-left: calc(50% - 215px); } }
-/* Minimalist & Clean Drawer Top Bar */
+/* Minimalist & Clean Drawer Top Bar with Brand, No bottom divider */
 .drawer-profile {
   background: var(--surface);
   color: var(--ink);
   padding: max(14px, env(safe-area-inset-top)) 16px 12px;
-  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
+  border-bottom: none;
 }
 .drawer-brand {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -288,8 +429,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: none;
+  background: transparent;
   color: var(--muted);
   display: grid;
   place-items: center;
@@ -303,7 +444,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   stroke-width: 1.8;
 }
 .drawer-close:hover {
-  background: color-mix(in srgb, var(--surface-2) 75%, var(--ink));
+  background: var(--surface-2);
   color: var(--ink);
 }
 .drawer-close:active {
@@ -311,6 +452,39 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 .large-profile > span:first-child { width: 48px; height: 48px; flex: none; border-radius: 16px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-weight: 800; }
 .drawer-body { padding: 14px; flex: 1; overflow-y: auto; }
+.new-chat-btn {
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 22%, transparent);
+  transition: opacity 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.01em;
+}
+.new-chat-btn .icon {
+  color: inherit;
+  stroke-width: 2.2;
+}
+.new-chat-btn span {
+  color: inherit;
+}
+.new-chat-btn:hover {
+  opacity: 0.92;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
 .search-field { height: 44px; border: 1px solid var(--glass-border); background: var(--glass); backdrop-filter: blur(14px); border-radius: 14px; display: flex; align-items: center; gap: 9px; padding: 0 11px; color: var(--muted); }
 .search-field input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 11px; }
 .search-field button { width: 28px; height: 28px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
@@ -463,7 +637,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .otp-form .auth-link { margin-top: 14px; font-size: 9px; }
 .media-sheet-actions { position: absolute; top: 7px; right: 12px; z-index: 1; }
 .media-sheet-actions .icon-button { width: 32px; height: 32px; border: 0; background: transparent; }
-.media-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 13px; }
+.media-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 280px; margin: 13px auto 0; }
 .media-options button { min-width: 0; min-height: 72px; padding: 4px 2px; border: 0; border-radius: 18px; background: transparent; color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform .2s cubic-bezier(.2,.8,.2,1), background .18s ease; }
 .media-options button:hover { background: color-mix(in srgb, var(--surface-2) 36%, transparent); transform: translateY(-2px); }
 .media-options button:active { transform: translateY(1px) scale(.94); }
