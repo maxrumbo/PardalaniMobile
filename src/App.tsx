@@ -3265,102 +3265,104 @@ function App() {
                   : "Core delivery superpowers:"}
               </p>
 
-              <div className="welcome-feature-list">
-                {/* 1. Urutan Rute Tercepat */}
-                <div className="welcome-feature-card">
-                  <div className="welcome-feature-header">
-                    <div className="welcome-feature-title-wrap">
-                      <span className="welcome-feature-icon route">
-                        <Icon name="route" size={16} />
-                      </span>
-                      <strong>
-                        {language === "id" ? "Urutan Rute Tercepat" : "Optimal Route Order"}
-                      </strong>
-                    </div>
-                    <span className="welcome-feature-badge success">
-                      {language === "id" ? "⚡ Hemat 25 Mnt" : "⚡ Save 25 Mins"}
+              <div className="wfc-list">
+                {/* Card 1 – Rute Tercepat */}
+                <div className="wfc-card wfc-card--route">
+                  <div className="wfc-top">
+                    <h3 className="wfc-title">
+                      {language === "id" ? "Urutan Rute\nTercepat" : "Optimal Route\nSequence"}
+                    </h3>
+                    <span className="wfc-corner-btn">
+                      <Icon name="external" size={11} />
                     </span>
                   </div>
-                  <div className="welcome-feature-visual route-visual">
-                    <div className="route-node hub">
-                      <span className="node-dot" />
-                      <span className="node-label">Depo</span>
+                  <div className="wfc-visual wfc-visual--route">
+                    <div className="wfc-map-pin hub">
+                      <Icon name="pin" size={14} />
+                      <span>Depo</span>
                     </div>
-                    <div className="route-line" />
-                    <div className="route-node stop">
-                      <span className="node-dot" />
-                      <span className="node-label">Paket 1</span>
-                    </div>
-                    <div className="route-line" />
-                    <div className="route-node stop">
-                      <span className="node-dot" />
-                      <span className="node-label">Paket 2</span>
+                    <svg className="wfc-road" viewBox="0 0 120 36" fill="none">
+                      <path d="M4 18 Q30 4 60 18 Q90 32 116 18" stroke="#c9f43b" strokeWidth="2.5" strokeDasharray="5 3" strokeLinecap="round"/>
+                      <circle cx="60" cy="18" r="4" fill="#c9f43b"/>
+                      <circle cx="116" cy="18" r="4" fill="#ffffff" stroke="#c9f43b" strokeWidth="1.5"/>
+                    </svg>
+                    <div className="wfc-map-pin dest">
+                      <Icon name="pin" size={14} />
+                      <span>{language === "id" ? "Tujuan" : "Dest"}</span>
                     </div>
                   </div>
+                  <div className="wfc-badge">
+                    <span className="wfc-badge-dot wfc-badge-dot--lime" />
+                    {language === "id" ? "⚡ Hemat s/d 25 menit" : "⚡ Save up to 25 mins"}
+                  </div>
+                  <p className="wfc-desc">
+                    {language === "id"
+                      ? "Alamat diurutkan otomatis, bensin hemat, waktu efisien."
+                      : "Auto-sorted stops save fuel and cut delivery time."}
+                  </p>
                 </div>
 
-                {/* 2. Pindai Resi Paket */}
-                <div className="welcome-feature-card">
-                  <div className="welcome-feature-header">
-                    <div className="welcome-feature-title-wrap">
-                      <span className="welcome-feature-icon scan">
-                        <Icon name="scan" size={16} />
-                      </span>
-                      <strong>
-                        {language === "id" ? "Pindai Resi Otomatis" : "Instant Label Scan"}
-                      </strong>
-                    </div>
-                    <span className="welcome-feature-badge info">
-                      {language === "id" ? "✓ Auto-Detect" : "✓ Auto-Detect"}
+                {/* Card 2 – Pindai Resi */}
+                <div className="wfc-card wfc-card--scan">
+                  <div className="wfc-top">
+                    <h3 className="wfc-title">
+                      {language === "id" ? "Pindai Resi\nOtomatis" : "Instant Label\nScan"}
+                    </h3>
+                    <span className="wfc-corner-btn">
+                      <Icon name="external" size={11} />
                     </span>
                   </div>
-                  <div className="welcome-feature-visual scan-visual">
-                    <div className="barcode-bars">
-                      <span className="b-bar b-1" />
-                      <span className="b-bar b-2" />
-                      <span className="b-bar b-1" />
-                      <span className="b-bar b-3" />
-                      <span className="b-bar b-2" />
-                      <span className="b-bar b-1" />
-                      <span className="b-bar b-3" />
-                      <span className="b-bar b-2" />
+                  <div className="wfc-visual wfc-visual--scan">
+                    <div className="wfc-barcode">
+                      {[2,1,3,1,2,3,1,2,1,3,2,1].map((w, i) => (
+                        <span key={i} className={`wfc-bar wfc-bar--${w}`} />
+                      ))}
                     </div>
-                    <div className="scan-code-pill">
+                    <div className="wfc-scan-line" />
+                    <div className="wfc-scan-result">
                       <code>PRD-8821</code>
-                      <span className="scan-tag">Nama & Alamat OK</span>
                     </div>
                   </div>
+                  <div className="wfc-badge">
+                    <span className="wfc-badge-dot wfc-badge-dot--blue" />
+                    {language === "id" ? "✓ Tanpa ketik manual" : "✓ Zero manual typing"}
+                  </div>
+                  <p className="wfc-desc">
+                    {language === "id"
+                      ? "Jepret barcode — nama & alamat terbaca seketika."
+                      : "Snap a barcode — name & address read instantly."}
+                  </p>
                 </div>
 
-                {/* 3. Dikte & Panduan Suara */}
-                <div className="welcome-feature-card">
-                  <div className="welcome-feature-header">
-                    <div className="welcome-feature-title-wrap">
-                      <span className="welcome-feature-icon mic">
-                        <Icon name="mic" size={16} />
-                      </span>
-                      <strong>
-                        {language === "id" ? "Dikte Suara Kurir" : "Voice Assistant"}
-                      </strong>
-                    </div>
-                    <span className="welcome-feature-badge warning">
-                      {language === "id" ? "🛡️ Hands-free" : "🛡️ Hands-free"}
+                {/* Card 3 – Suara Hands-free */}
+                <div className="wfc-card wfc-card--voice">
+                  <div className="wfc-top">
+                    <h3 className="wfc-title">
+                      {language === "id" ? "Dikte Suara\nHands-free" : "Voice Input\nHands-free"}
+                    </h3>
+                    <span className="wfc-corner-btn">
+                      <Icon name="external" size={11} />
                     </span>
                   </div>
-                  <div className="welcome-feature-visual voice-visual">
-                    <div className="waveform-bars">
-                      <span className="w-bar h-1" />
-                      <span className="w-bar h-3" />
-                      <span className="w-bar h-5" />
-                      <span className="w-bar h-2" />
-                      <span className="w-bar h-6" />
-                      <span className="w-bar h-4" />
-                      <span className="w-bar h-2" />
+                  <div className="wfc-visual wfc-visual--voice">
+                    <div className="wfc-mic-ring">
+                      <Icon name="mic" size={22} />
                     </div>
-                    <div className="voice-prompt-pill">
-                      <span>&ldquo;{language === "id" ? "Selesai antar paket" : "Parcel delivered"}&rdquo;</span>
+                    <div className="wfc-wave-row">
+                      {[4,8,13,10,15,12,9,6,11,8,5].map((h, i) => (
+                        <span key={i} className="wfc-wave-bar" style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }} />
+                      ))}
                     </div>
                   </div>
+                  <div className="wfc-badge">
+                    <span className="wfc-badge-dot wfc-badge-dot--green" />
+                    {language === "id" ? "🛡️ Aman saat berkendara" : "🛡️ Safe while driving"}
+                  </div>
+                  <p className="wfc-desc">
+                    {language === "id"
+                      ? "Rekam pesan & terima instruksi tanpa menyentuh layar."
+                      : "Dictate notes & get spoken instructions while riding."}
+                  </p>
                 </div>
               </div>
 
